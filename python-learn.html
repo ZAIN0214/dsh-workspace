@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>学会 Python · 零基础一步一步学到能写程序</title>
+<meta name="description" content="先摸底、再规划、然后一步步带着学，每一步都有反馈，学完还有测验。" />
+<style>
+  :root{
+    --bg:#f4f6fb;
+    --bg2:#eef1fa;
+    --card:#ffffff;
+    --card2:#fafbff;
+    --ink:#171b28;
+    --muted:#68708a;
+    --line:#e6e9f4;
+    --accent:#3b6fe0;
+    --accent2:#6b8ff7;
+    --accent-soft:#ecf1ff;
+    --green:#0f9d76;
+    --green-soft:#e6f7f1;
+    --red:#d9534f;
+    --red-soft:#fdeeee;
+    --amber:#c98a1c;
+    --amber-soft:#fff7e6;
+    --radius:20px;
+    --shadow:0 16px 40px -22px rgba(23,27,40,.28), 0 2px 8px -4px rgba(23,27,40,.06);
+    --mono:"SF Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(900px 420px at 12% -8%, #e3ebff 0%, transparent 60%),
+      radial-gradient(760px 380px at 92% 4%, #e8f6ef 0%, transparent 55%),
+      var(--bg);
+    min-height:100vh;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  h1,h2,h3{letter-spacing:-.3px;line-height:1.35}
+
+  /* 顶栏 */
+  .topbar{
+    max-width:880px;margin:0 auto;padding:18px 20px 10px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+  }
+  .brand{display:flex;align-items:center;gap:11px}
+  .brand .logo{
+    width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:20px;
+    background:linear-gradient(140deg,#3b6fe0,#7c5cff);box-shadow:0 8px 18px -8px #3b6fe0;
+  }
+  .brand b{display:block;font-size:15px;line-height:1.2}
+  .brand small{display:block;font-size:11px;color:var(--muted);letter-spacing:.5px}
+
+  .btn{
+    appearance:none;font:inherit;font-size:14px;cursor:pointer;
+    border:1px solid var(--line);background:var(--card);color:var(--ink);
+    padding:10px 18px;border-radius:12px;display:inline-flex;align-items:center;gap:7px;justify-content:center;
+    transition:transform .15s ease,box-shadow .2s ease,border-color .2s ease,background .2s ease;
+  }
+  .btn:hover{transform:translateY(-1px);border-color:#cdd6ef;box-shadow:0 8px 20px -12px rgba(23,27,40,.25)}
+  .btn:active{transform:translateY(0) scale(.99)}
+  .btn.primary{
+    background:linear-gradient(135deg,var(--accent),#6f5cf0);color:#fff;border:none;
+    box-shadow:0 12px 26px -14px var(--accent);
+  }
+  .btn.primary:hover{box-shadow:0 16px 30px -14px var(--accent)}
+  .btn.ghost{background:transparent}
+  .btn.sm{font-size:12.5px;padding:7px 12px;border-radius:10px}
+  .btn.big{font-size:15.5px;padding:14px 26px;border-radius:14px}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+  .link{
+    appearance:none;border:none;background:transparent;font:inherit;font-size:13.5px;color:var(--accent);
+    cursor:pointer;padding:4px 0;text-decoration:none;display:inline-flex;align-items:center;gap:4px;
+  }
+  .link:hover{text-decoration:underline;text-underline-offset:3px}
+
+  /* 步骤条 */
+  .stepper-wrap{max-width:880px;margin:4px auto 0;padding:0 20px}
+  .stepper{
+    list-style:none;margin:0;padding:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+  }
+  .stepper li{
+    display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);
+    background:var(--card);border:1px solid var(--line);border-radius:99px;padding:5px 12px 5px 6px;
+  }
+  .stepper li .no{
+    width:19px;height:19px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;
+    background:var(--bg2);color:var(--muted);border:1px solid var(--line);
+  }
+  .stepper li.active{color:var(--accent);border-color:#c6d4ff;background:var(--accent-soft);font-weight:600}
+  .stepper li.active .no{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .stepper li.done{color:var(--green);border-color:#c6ecdd;background:var(--green-soft)}
+  .stepper li.done .no{background:var(--green);color:#fff;border-color:var(--green)}
+  .stepper .sep{flex:0 1 22px;height:1px;background:var(--line)}
+
+  /* 屏幕 */
+  .screen{animation:rise .35s ease both}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+  /* 首页 */
+  .hero{padding:34px 0 8px;text-align:center}
+  .hero .tagline{
+    display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--accent);
+    background:var(--accent-soft);border:1px solid #d3dfff;border-radius:99px;padding:5px 14px;
+  }
+  .hero h1{font-size:clamp(28px,4.4vw,42px);margin:18px 0 14px}
+  .hero h1 em{
+    font-style:normal;background:linear-gradient(115deg,var(--accent),#7c5cff 55%,#0f9d76);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero .lead{color:var(--muted);font-size:15.5px;max-width:600px;margin:0 auto 26px}
+  .hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:44px 0 0;text-align:left}
+  .feature{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+  .feature .ico{font-size:22px}
+  .feature h3{margin:10px 0 6px;font-size:15px}
+  .feature p{margin:0;font-size:13px;color:var(--muted);line-height:1.75}
+  .feature .step-no{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:1px}
+  .outline{margin-top:34px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+  .outline h2{font-size:16px;margin:0 0 4px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .outline h2 span{font-size:12px;color:var(--muted);font-weight:400}
+  .outline ol{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:6px}
+  .outline li{display:flex;gap:12px;align-items:flex-start;padding:9px 10px;border-radius:12px;font-size:13.5px}
+  .outline li:hover{background:var(--card2)}
+  .outline li .idx{
+    flex:0 0 auto;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;
+    font-size:12px;font-weight:700;background:var(--accent-soft);color:var(--accent);
+  }
+  .outline li b{display:block;font-weight:600;font-size:13.5px}
+  .outline li small{color:var(--muted);font-size:12px}
+
+  /* 通用卡片 */
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:28px;margin-top:18px;
+  }
+  .kicker{
+    margin:0 0 8px;font-size:12px;letter-spacing:.6px;color:var(--muted);
+    display:flex;align-items:center;gap:8px;text-transform:none;
+  }
+  .kicker .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+  /* 摸底 */
+  .quiz-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .quiz-head .meta{font-size:12.5px;color:var(--muted)}
+  .progress{height:6px;border-radius:99px;background:var(--bg2);overflow:hidden;margin:6px 0 22px}
+  .progress i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),#7c5cff);transition:width .35s ease}
+  .q-title{font-size:clamp(19px,2.6vw,23px);margin:4px 0 20px;font-weight:700}
+  .q-hint{font-size:13px;color:var(--muted);margin:0 0 18px}
+  .opts{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+  .opt{
+    appearance:none;font:inherit;text-align:left;cursor:pointer;
+    display:flex;align-items:flex-start;gap:12px;
+    background:var(--card2);border:1.5px solid var(--line);border-radius:14px;
+    padding:13px 16px;font-size:14.5px;color:var(--ink);line-height:1.6;
+    transition:border-color .18s ease,background .18s ease,transform .15s ease;
+  }
+  .opt .key{
+    flex:0 0 auto;width:23px;height:23px;border-radius:7px;display:grid;place-items:center;
+    font-size:11.5px;font-weight:700;background:#fff;border:1px solid var(--line);color:var(--muted);margin-top:1px;
+  }
+  .opt:hover:not(.static){border-color:#b9c9f2;background:#f5f8ff;transform:translateX(2px)}
+  .opt.selected{border-color:var(--accent);background:var(--accent-soft)}
+  .opt.selected .key{background:var(--accent);border-color:var(--accent);color:#fff}
+  .opt.right{border-color:#8fd9bf;background:var(--green-soft)}
+  .opt.right .key{background:var(--green);border-color:var(--green);color:#fff}
+  .opt.wrong{border-color:#f0b8b6;background:var(--red-soft)}
+  .opt.wrong .key{background:var(--red);border-color:var(--red);color:#fff}
+  .opt.static{cursor:default}
+  .opt.dim{opacity:.62}
+
+  /* 反馈块 */
+  .feedback{border-radius:16px;padding:18px 20px;margin-top:18px;border:1px solid transparent}
+  .feedback.ok{background:var(--green-soft);border-color:#c9eddf}
+  .feedback.bad{background:var(--red-soft);border-color:#f6d2d0}
+  .feedback .fb-title{margin:0 0 6px;font-weight:700;font-size:14.5px}
+  .feedback.ok .fb-title{color:var(--green)}
+  .feedback.bad .fb-title{color:var(--red)}
+  .feedback p{margin:0 0 8px;font-size:13.8px;color:#3a4256}
+  .feedback .btn{margin-top:8px}
+
+  /* 简化解释 */
+  .simple{
+    margin-top:16px;background:var(--amber-soft);border:1px solid #f6e3b8;border-radius:14px;
+    padding:14px 16px;font-size:13.6px;color:#6b5320;line-height:1.8;
+  }
+  .simple b{color:#8a6a12}
+
+  /* 代码 */
+  .code{
+    background:#0f1626;color:#e6ecff;border-radius:14px;padding:16px 18px;margin:16px 0 0;
+    font-family:var(--mono);font-size:13.5px;line-height:1.75;overflow-x:auto;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
+  }
+  .code code{font-family:inherit;white-space:pre}
+  .out{
+    margin-top:0;background:#12203a;border-radius:0 0 14px 14px;padding:12px 18px;
+    border-top:1px solid rgba(255,255,255,.08);display:flex;gap:12px;align-items:flex-start;
+  }
+  .out + .simple{margin-top:16px}
+  .out .out-label{
+    flex:0 0 auto;font-size:11px;color:#8fe3c2;background:rgba(143,227,194,.12);
+    padding:2px 8px;border-radius:6px;margin-top:3px;letter-spacing:.5px;
+  }
+  .out pre{
+    margin:0;font-family:var(--mono);font-size:13px;color:#b9f5dd;white-space:pre-wrap;word-break:break-word;
+  }
+  .code-wrap{margin:16px 0 0}
+  .code-wrap .code{margin:0;border-radius:14px 14px 0 0}
+
+  /* 报告 */
+  .report-hero{text-align:center;padding:6px 0 4px}
+  .level-badge{
+    display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;
+    border-radius:99px;padding:6px 16px;margin-bottom:14px;
+  }
+  .level-badge.zero{background:var(--accent-soft);color:var(--accent)}
+  .level-badge.mid{background:var(--amber-soft);color:var(--amber)}
+  .level-badge.high{background:var(--green-soft);color:var(--green)}
+  .report-hero h1{font-size:clamp(23px,3.4vw,32px);margin:0 0 10px}
+  .report-hero p{color:var(--muted);font-size:14.5px;max-width:560px;margin:0 auto}
+  .skill-list{display:grid;gap:14px;margin-top:6px}
+  .skill{display:flex;flex-direction:column;gap:6px}
+  .skill .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13.5px}
+  .skill .row b{font-weight:600}
+  .skill .row .lv{font-size:12px;font-weight:700}
+  .skill .row .lv.zero{color:var(--red)}
+  .skill .row .lv.mid{color:var(--amber)}
+  .skill .row .lv.high{color:var(--green)}
+  .skill .bar{height:7px;border-radius:99px;background:var(--bg2);overflow:hidden}
+  .skill .bar i{display:block;height:100%;border-radius:99px;transition:width .5s ease}
+  .skill .bar i.zero{background:linear-gradient(90deg,#f0a6a2,#e2575b)}
+  .skill .bar i.mid{background:linear-gradient(90deg,#f4cf7a,#e0a02c)}
+  .skill .bar i.high{background:linear-gradient(90deg,#7fe0bb,#12a97c)}
+  .plan{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px}
+  .plan li{
+    display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:14px;
+    background:var(--card2);border:1px solid var(--line);
+  }
+  .plan li .no{
+    flex:0 0 auto;width:26px;height:26px;border-radius:9px;display:grid;place-items:center;
+    font-size:12px;font-weight:700;background:#fff;border:1px solid var(--line);color:var(--muted);
+  }
+  .plan li .body{flex:1;min-width:0}
+  .plan li .body b{font-size:13.8px;display:block}
+  .plan li .body small{font-size:12px;color:var(--muted)}
+  .plan li .tag{flex:0 0 auto;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;align-self:center}
+  .tag.focus{background:var(--red-soft);color:var(--red)}
+  .tag.normal{background:var(--accent-soft);color:var(--accent)}
+  .tag.fast{background:var(--green-soft);color:var(--green)}
+  .tag.done{background:var(--green-soft);color:var(--green)}
+  .plan-summary{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:14px}
+  .plan-summary b{color:var(--ink)}
+
+  /* 课程列表 */
+  .lesson-list{display:grid;gap:12px;margin-top:6px}
+  .lesson-item{
+    display:flex;gap:16px;align-items:flex-start;width:100%;text-align:left;font:inherit;color:inherit;
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;
+    box-shadow:var(--shadow);cursor:pointer;
+    transition:transform .18s ease,border-color .2s ease,box-shadow .2s ease;
+  }
+  .lesson-item:hover{transform:translateY(-2px);border-color:#c9d5f5;box-shadow:0 20px 36px -22px rgba(23,27,40,.3)}
+  .lesson-item .no{
+    flex:0 0 auto;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;
+    font-size:14px;font-weight:700;background:var(--accent-soft);color:var(--accent);
+  }
+  .lesson-item.finished .no{background:var(--green-soft);color:var(--green)}
+  .lesson-item .body{flex:1;min-width:0}
+  .lesson-item .body b{font-size:15px;display:block}
+  .lesson-item .body small{font-size:12.5px;color:var(--muted);display:block;margin-top:2px}
+  .lesson-item .right{flex:0 0 auto;text-align:right;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+  .lesson-item .right .mi{font-size:11.5px;color:var(--muted)}
+  .lesson-item .right .pct{font-size:12.5px;font-weight:700;color:var(--green)}
+  .course-overview{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:4px}
+  .course-overview h1{font-size:clamp(22px,3.2vw,28px);margin:0}
+  .course-overview p{margin:4px 0 0;color:var(--muted);font-size:13.5px}
+  .overall{min-width:150px;text-align:right;font-size:12.5px;color:var(--muted)}
+  .overall b{display:block;font-size:22px;color:var(--ink)}
+
+  /* 上课 */
+  .lesson-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+  .lesson-top .steps-ind{font-size:12.5px;color:var(--muted)}
+  .lesson-progress{height:5px;background:var(--bg2);border-radius:99px;overflow:hidden;margin:2px 0 18px}
+  .lesson-progress i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#7c5cff);border-radius:99px;transition:width .35s}
+  .lesson-title{font-size:12px;color:var(--muted);margin:0 0 6px;letter-spacing:.4px}
+  .card-stage h2{font-size:clamp(20px,2.8vw,25px);margin:0 0 14px}
+  .card-stage p{margin:0 0 12px;font-size:15.5px;line-height:1.9}
+  .card-stage p b{background:linear-gradient(transparent 62%,#d9e4ff 0);padding:0 2px}
+  .check{margin-top:22px;padding-top:20px;border-top:1px dashed var(--line)}
+  .check h3{font-size:15.5px;margin:6px 0 0}
+
+  /* 提问 */
+  .asks{display:grid;gap:9px;margin-top:6px}
+  .ask{border:1px solid var(--line);border-radius:14px;background:var(--card2);overflow:hidden}
+  .ask summary{
+    cursor:pointer;list-style:none;padding:13px 16px;font-size:14px;font-weight:600;color:var(--ink);
+    display:flex;justify-content:space-between;gap:12px;align-items:center;
+  }
+  .ask summary::-webkit-details-marker{display:none}
+  .ask summary::after{content:"＋";color:var(--accent);font-weight:400;font-size:16px}
+  .ask[open] summary::after{content:"－"}
+  .ask[open] summary{color:var(--accent)}
+  .ask .answer{padding:0 16px 15px;font-size:13.6px;color:#414a61;line-height:1.85;border-top:1px solid var(--line);margin-top:0;padding-top:12px}
+
+  /* 小结 */
+  .summary-box{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin-top:18px}
+  .summary-box h3{margin:0 0 10px;font-size:14.5px}
+  .summary-box ul{margin:0;padding-left:20px;font-size:14px;line-height:1.85}
+  .summary-box li{margin:4px 0}
+
+  /* 完成 */
+  .done-hero{text-align:center;padding:10px 0}
+  .score-ring{
+    width:150px;height:150px;border-radius:50%;margin:8px auto 16px;display:grid;place-items:center;
+    background:conic-gradient(var(--green) calc(var(--p,0) * 1%),#eef1f8 0);
+  }
+  .score-ring .in{
+    width:118px;height:118px;border-radius:50%;background:var(--card);display:grid;place-items:center;text-align:center;
+    box-shadow:inset 0 0 0 1px var(--line);
+  }
+  .score-ring .in b{font-size:30px;line-height:1.1}
+  .score-ring .in span{font-size:11px;color:var(--muted);display:block}
+  .done-hero h1{font-size:clamp(22px,3.2vw,30px);margin:6px 0 8px}
+  .done-hero p{color:var(--muted);font-size:14.5px;max-width:520px;margin:0 auto 6px}
+  .review-list{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:9px}
+  .review-list li{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--card2)}
+  .review-list .rq{font-size:13.8px;font-weight:600;margin:0 0 6px;display:flex;gap:8px;align-items:flex-start}
+  .review-list .rq .mark{flex:0 0 auto}
+  .review-list .ra{font-size:12.8px;color:var(--muted);margin:2px 0 0}
+  .review-list .ra b{color:var(--ink);font-weight:600}
+  .review-list .explain{font-size:13px;color:var(--muted);margin:6px 0 0;line-height:1.8}
+  .review-list .right{border-color:#c9eddf}
+  .review-list .wrong{border-color:#f6d2d0}
+
+  /* 其它 */
+  .note{font-size:12.5px;color:var(--muted);margin:14px 0 0}
+  .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+  .actions.right{justify-content:flex-end}
+  .divider{height:1px;background:var(--line);margin:22px 0}
+  .center{text-align:center}
+  .mt24{margin-top:24px}
+  .footer{margin-top:48px;text-align:center;font-size:12px;color:#9aa2b8}
+
+  #toast{
+    position:fixed;left:50%;bottom:28px;transform:translate(-50%,16px);z-index:99;
+    background:#171b28;color:#fff;font-size:13px;padding:10px 18px;border-radius:12px;
+    opacity:0;pointer-events:none;transition:all .25s ease;box-shadow:0 16px 34px -14px rgba(0,0,0,.4);
+  }
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+
+  @media (max-width:720px){
+    .feature-grid{grid-template-columns:1fr}
+    .card{padding:22px 18px}
+    .hero{padding-top:24px}
+    .lesson-item{padding:16px}
+    .stepper .sep{display:none}
+    .course-overview{flex-direction:column;align-items:flex-start}
+    .overall{text-align:left}
+    .plan li .tag{align-self:flex-start}
+  }
+  @media (max-width:480px){
+    .topbar{padding:14px 16px 6px}
+    .brand small{display:none}
+    .wrap{padding:0 16px 70px}
+    .stepper-wrap{padding:0 16px}
+    .stepper li{padding:4px 10px 4px 5px;font-size:11.5px}
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo" aria-hidden="true">🐍</span>
+    <div><b>学会 Python</b><small>摸底 · 规划 · 带学 · 测验</small></div>
+  </div>
+  <button class="btn ghost sm" type="button" data-act="restart" title="清空进度，从头开始">重新开始</button>
+</header>
+<nav class="stepper-wrap" id="stepper" aria-label="学习流程"></nav>
+<main class="wrap" id="app"></main>
+<div class="footer">进度自动保存在你的浏览器里 · 关掉页面也不会丢</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+/* =======================================================================
+   课程内容数据区
+   -----------------------------------------------------------------------
+   想换成别的方向？只需要改这个文件里的三块数据：
+   1) COURSE.lessons  —— 每节课的讲解卡片、检查题、建议提问、小测
+   2) DIAG           —— 摸底题（每题的 skill 决定诊断维度）
+   3) FINAL          —— 结课测验题
+   引擎（后面的渲染逻辑）不需要改动。
+   ======================================================================= */
+
+var COURSE = {
+  id: "python-101",
+  title: "Python 零基础入门",
+  subtitle: "从第一行 print 到写出一个记账小程序",
+  skillList: [
+    { id: "basics", name: "基础语法", desc: "变量、类型、打印" },
+    { id: "logic",  name: "逻辑控制", desc: "条件与循环" },
+    { id: "data",   name: "数据结构", desc: "列表与字典" },
+    { id: "funcs",  name: "函数与综合", desc: "复用与项目" }
+  ],
+  lessons: [
+    /* ============================ 第 1 课 ============================ */
+    {
+      id: "l1", no: 1, skill: "basics", minutes: 12,
+      title: "变量、print 与 f-string",
+      goal: "能把内容打印出来、用变量存数据，并把变量嵌进句子里",
+      cards: [
+        {
+          h: "先让电脑说一句话",
+          p: [
+            "Python 程序就是一行一行往下执行的指令。**print 的作用，是把括号里的内容显示到屏幕上**。",
+            "注意：引号表示“这是一段文字”，引号本身不会显示出来。"
+          ],
+          code: 'print("你好，Python")',
+          out: "你好，Python",
+          simple: "把 print 当成一台打印机：括号里放什么，它就印什么。引号只是告诉 Python「这是文字」，不会印出来。",
+          check: {
+            q: '执行 print("2+3")，屏幕上会显示什么？',
+            opts: ["5", "2+3", '"2+3"', "报错"],
+            a: 1,
+            explain: "引号里的内容会原样显示，所以是 2+3。想得到 5，要写 print(2+3)，把引号去掉。"
+          }
+        },
+        {
+          h: "变量：贴了名字的盒子",
+          p: [
+            "变量是一个**贴了名字的盒子**：你把数据放进去，之后用名字就能取出来。",
+            "用等号 = 赋值：name = \"小明\"，读作「把小明放进 name 这个盒子」。"
+          ],
+          code: 'age = 18\nprint(age)\nage = 20\nprint(age)',
+          out: "18\n20",
+          simple: "变量名是储物柜的号码，值是你放进去的东西。重新赋值，就是换掉柜子里的东西。",
+          check: {
+            q: "先执行 a = 3，再执行 a = 5，最后 a 的值是多少？",
+            opts: ["3", "5", "8", "报错"],
+            a: 1,
+            explain: "= 是赋值，会用新值覆盖旧值。第二次执行后 a 就变成 5 了。"
+          }
+        },
+        {
+          h: "f-string：把变量塞进句子",
+          p: [
+            "想把变量嵌进一句话里，用 **f-string**：在引号前面加一个 f，变量放进花括号 {} 里。",
+            "这样能拼出会变的话，比如打招呼、生成报告。"
+          ],
+          code: 'name = "小林"\nprint(f"你好，{name}！")',
+          out: "你好，小林！",
+          simple: "f 开头的字符串就是一个模板，{} 的位置会被变量的值自动填上。",
+          check: {
+            q: 'print(f"结果是{2+2}") 会输出什么？',
+            opts: ["结果是{2+2}", "结果是4", "结果是2+2", "报错"],
+            a: 1,
+            explain: "花括号里可以写算式，Python 会先算出 2+2=4，再填进句子。"
+          }
+        }
+      ],
+      asks: [
+        { q: "变量名可以随便起吗？", a: "要满足三条：只能由字母、数字、下划线组成；不能以数字开头；不能和 print 这类保留字重名。推荐用有意义的小写单词，比如 study_time，比 a、b 好读得多。" },
+        { q: "为什么 print 有时候带引号，有时候不带？", a: '带引号 = 打印这段文字本身，print("score") 显示 score；不带引号 = 打印变量里存的值，print(score) 会显示 score 这个变量装的东西。' },
+        { q: "可以用中文当变量名吗？", a: "技术上可以（Python 3 支持），但不推荐：教程、报错信息、别人的代码基本都是英文，混用会增加理解成本。" }
+      ],
+      summary: [
+        "print 把括号里的内容显示到屏幕，引号里的内容原样输出",
+        "= 是赋值，变量可以被重新赋值覆盖",
+        'f"..." 里用 {} 把变量或算式嵌进句子'
+      ],
+      quiz: [
+        {
+          q: "下面哪个变量名是合法的？",
+          opts: ["2score", "score_2", "score-2", "score 2"],
+          a: 1,
+          explain: "变量名不能数字开头、不能有空格和减号。score_2 合法。",
+          hint: "检查开头是不是数字，中间有没有空格或减号。"
+        },
+        {
+          q: 'print(f"{1+1}点") 会输出什么？',
+          opts: ["{1+1}点", "11点", "2点", "报错"],
+          a: 2,
+          explain: "花括号里先计算 1+1=2，再拼上「点」。",
+          hint: "花括号里的算式会先被计算，不会原样打印。"
+        }
+      ]
+    },
+    /* ============================ 第 2 课 ============================ */
+    {
+      id: "l2", no: 2, skill: "basics", minutes: 14,
+      title: "数字、字符串与类型转换",
+      goal: "分清 4 种基本类型，知道什么时候需要 int() 和 str()",
+      cards: [
+        {
+          h: "四种基本类型",
+          p: [
+            "Python 里每个值都有类型：整数 int、小数 float、文字 str、真假 bool。",
+            "**type() 可以查看一个值的类型**，不确定的时候随时问它。"
+          ],
+          code: 'print(type(18))\nprint(type(3.14))\nprint(type("hi"))\nprint(type(True))',
+          out: "<class 'int'>\n<class 'float'>\n<class 'str'>\n<class 'bool'>",
+          simple: "类型就是「这是哪种东西」：整数、小数、文字、真或假。类型不同，能做和不能做的事也不同。",
+          check: {
+            q: 'type("8") 返回什么？',
+            opts: ["int", "str", "float", "bool"],
+            a: 1,
+            explain: "有引号就是文字，哪怕内容是数字，类型也叫 str。"
+          }
+        },
+        {
+          h: "+ 号的两个意思，和类型转换",
+          p: [
+            "+ 在不同类型上意思不同：两个数字是相加，两段文字是**拼接**。",
+            "数字和文字直接相加会报 TypeError。用 int() / float() / str() 先转换，再运算。"
+          ],
+          code: 'print(1 + 2)\nprint("1" + "2")\nprint(int("7") + 1)',
+          out: "3\n12\n8",
+          simple: "不能把苹果和「三张纸」相加。先统一类型，再计算。",
+          check: {
+            q: 'int("7") + 1 的结果是？',
+            opts: ['"71"', "8", "71", "报错"],
+            a: 1,
+            explain: 'int("7") 把文字 7 变成数字 7，再加 1 就是 8。'
+          }
+        },
+        {
+          h: "input 拿到的永远是文字",
+          p: [
+            "input() 让你从键盘输入内容，但它**返回的永远是字符串**。",
+            "要做数学运算，就得先 int() 或 float() 转换一下。"
+          ],
+          code: 'age = int(input("你的年龄："))\nprint(f"明年你{age + 1}岁")',
+          out: "你的年龄：20\n明年你21岁",
+          simple: "input 像录音机，录进来的是「文字」。要做算术，得先把文字翻译成数字。",
+          check: {
+            q: "为什么 age = int(input(...)) 里要加 int？",
+            opts: ["为了好看", "因为 input 返回字符串，不能直接做数学运算", "int 能防止输入错误", "不写会运行更快"],
+            a: 1,
+            explain: "input 永远返回 str。不加 int()，age + 1 就是「文字 + 数字」，会直接报错。"
+          }
+        }
+      ],
+      asks: [
+        { q: '"3" 和 3 到底有什么区别？', a: '前者是文字（有引号），后者是数字。打印出来看着像，但 "3" + 1 会报错；3 + 1 得到 4。' },
+        { q: "小数怎么取整？", a: "int(3.9) 直接截掉小数得 3，round(3.9) 四舍五入得 4。算钱、算分数时要想清楚用哪个。" },
+        { q: "为什么我的代码报 TypeError？", a: "绝大多数是类型混用：文字和数字相加、把 None 当数字用。看报错最后一行，通常是 can only concatenate str (not \"int\") to str 这类提示，会告诉你哪一行出的问题。" }
+      ],
+      summary: [
+        "int / float / str / bool 是四种基本类型，type() 可以查看",
+        "+ 在文字上是拼接，类型混用会报 TypeError",
+        "input 返回字符串，计算前要先转换"
+      ],
+      quiz: [
+        {
+          q: '"10" * 2 的结果是？',
+          opts: ["20", '"1010"', "报错", '"20"'],
+          a: 1,
+          explain: "字符串乘数字表示重复拼接，所以是 1010。",
+          hint: "乘号用在文字上不是数学，而是「重复几遍」。"
+        },
+        {
+          q: 'int("3.5") 会发生什么？',
+          opts: ["得到 3", "得到 3.5", "报错 ValueError", '得到 "3.5"'],
+          a: 2,
+          explain: 'int() 只接受像 "3" 这样的整数文字；要转小数请用 float("3.5")。',
+          hint: "int 只认整数格式，小数点它不认识。"
+        }
+      ]
+    },
+    /* ============================ 第 3 课 ============================ */
+    {
+      id: "l3", no: 3, skill: "logic", minutes: 15,
+      title: "if 条件判断：让程序做选择",
+      goal: "会写 if / elif / else，看懂缩进，会组合 and / or",
+      cards: [
+        {
+          h: "if 和缩进",
+          p: [
+            "if 后面跟一个条件，条件成立（True）时，才会执行**缩进的那几行**。",
+            "缩进是 Python 语法的一部分：4 个空格表示「这几行属于上面那个 if」。"
+          ],
+          code: 'score = 85\nif score >= 60:\n    print("及格了")',
+          out: "及格了",
+          simple: "if 像一个门卫：条件达标才放行，缩进的那部分就是门后面的路。",
+          check: {
+            q: 'score = 50 时，上面这段代码会输出什么？',
+            opts: ["及格了", "什么都不输出", "报错", "False"],
+            a: 1,
+            explain: "条件不成立，缩进的语句不会执行，所以屏幕上什么都不会出现。"
+          }
+        },
+        {
+          h: "elif / else：多个出口",
+          p: [
+            "多个条件用 elif 串起来，**从上往下判断，命中一个就停**。",
+            "else 是兜底：所有条件都不成立时执行。"
+          ],
+          code: 'score = 85\nif score >= 90:\n    print("优秀")\nelif score >= 80:\n    print("良好")\nelse:\n    print("继续加油")',
+          out: "良好",
+          simple: "像自动售货机：从上往下试，第一个满足的出口就出货，不会再往下走。",
+          check: {
+            q: "score = 95 时会输出什么？",
+            opts: ["优秀", "良好", "继续加油", "优秀和良好"],
+            a: 0,
+            explain: "从上往下判断，第一个条件就成立并结束，所以只输出「优秀」。"
+          }
+        },
+        {
+          h: "比较和组合条件",
+          p: [
+            "比较运算符：== 判断相等，!= 判断不等，>= 大于等于。**注意 = 是赋值，== 才是比较**。",
+            "用 and / or / not 把条件组合起来。"
+          ],
+          code: 'age = 20\nis_student = True\nif age >= 18 and is_student:\n    print("可以买学生票")',
+          out: "可以买学生票",
+          simple: "and 要求两边都为真；or 只要有一边为真；not 把结果反过来。",
+          check: {
+            q: "要判断「年龄满 18 且是学生」，应该怎么写？",
+            opts: ["age >= 18 or is_student", "age >= 18 and is_student", "age = 18 and is_student", "not age >= 18"],
+            a: 1,
+            explain: "and 表示两个条件必须同时成立。写成 or 会变成「满足一个就行」。"
+          }
+        }
+      ],
+      asks: [
+        { q: "= 和 == 到底怎么区分？", a: "= 是赋值（把值放进变量），== 是比较（问「相等吗」）。if 后面要用 ==。写错通常不报错，但结果永远不对，这是最常见的 bug 之一。" },
+        { q: "为什么我的 if 不管输入什么都在执行？", a: "先检查缩进：print 必须比 if 多缩进 4 个空格。再检查条件：如果写成了字符串（比如 if \"False\":），非空字符串恒为真，就会一直执行。" },
+        { q: "if 一定要配 else 吗？", a: "不必须。else 只是兜底；没有 else 时，条件不成立就跳过这几行，继续往下执行。" }
+      ],
+      summary: [
+        "if 条件成立才执行缩进的部分，缩进错了逻辑就错了",
+        "elif 从上往下命中即停，else 兜底",
+        "== 是判断相等，and / or / not 组合条件"
+      ],
+      quiz: [
+        {
+          q: "if 0: 后面的代码会执行吗？",
+          opts: ["会，0 也算真", "不会，0 在 Python 里算假", "会报错", "看运气"],
+          a: 1,
+          explain: 'Python 里 0、""、[]、None 都算假，只有非零、非空才为真。',
+          hint: "想想「空」和「零」在 Python 里代表真还是假。"
+        },
+        {
+          q: '"a" == "A" 的结果是？',
+          opts: ["True", "False", "报错", "None"],
+          a: 1,
+          explain: "字符串比较区分大小写，a 和 A 不相等。",
+          hint: "大小写算不算一样？"
+        }
+      ]
+    },
+    /* ============================ 第 4 课 ============================ */
+    {
+      id: "l4", no: 4, skill: "logic", minutes: 16,
+      title: "for / while 循环：让电脑重复干活",
+      goal: "会用 range 写循环、用累加器做统计、知道怎么避免死循环",
+      cards: [
+        {
+          h: "for + range：重复固定次数",
+          p: [
+            "for 循环用来重复执行。for i in range(5) 会重复 5 次，i 依次等于 0 到 4。",
+            "**range(5) 从 0 开始，不包含 5** —— 这是新手最容易踩的坑。"
+          ],
+          code: "for i in range(3):\n    print(i)",
+          out: "0\n1\n2",
+          simple: "range(3) 不是 1、2、3，而是像电梯楼层 0、1、2：从 0 层开始数，到你给的上限之前停下。",
+          check: {
+            q: "range(3) 会依次产生哪些数？",
+            opts: ["1 2 3", "0 1 2", "0 1 2 3", "3"],
+            a: 1,
+            explain: "range(n) 从 0 到 n-1，一共 n 个数。"
+          }
+        },
+        {
+          h: "遍历列表 + 累加器",
+          p: [
+            "for 也可以直接遍历列表里的每一项。",
+            "准备一个「累加器」变量，循环里不断把新值加上去。"
+          ],
+          code: "total = 0\nfor n in [1, 2, 3]:\n    total = total + n\nprint(total)",
+          out: "6",
+          simple: "累加器像一个存钱罐：每循环一次就投一枚硬币，最后打开看总数。",
+          check: {
+            q: "循环结束后 total 是多少？（列表是 [1, 2, 3]）",
+            opts: ["3", "6", "123", "0"],
+            a: 1,
+            explain: "0 + 1 + 2 + 3 = 6。"
+          }
+        },
+        {
+          h: "while 和 break",
+          p: [
+            "while 是「条件为真就一直重复」，适合不知道要重复多少次的场景。",
+            "**一定要让条件最终变假**，否则会死循环；break 可以提前跳出循环。"
+          ],
+          code: "count = 1\nwhile count <= 3:\n    print(count)\n    count = count + 1",
+          out: "1\n2\n3",
+          simple: "while 像「只要还没到站就一直往前开」；break 是紧急刹车，立刻跳出循环。",
+          check: {
+            q: "下面哪种写法一定会变成死循环？",
+            opts: [
+              "count = 1; while count <= 3: count = count + 1",
+              'while True: print("hi")（没有 break）',
+              "for i in range(3): print(i)",
+              "count = 3; while count > 0: count = count - 1"
+            ],
+            a: 1,
+            explain: "while True 永远为真，又没有 break，程序会一直打印下去。"
+          }
+        }
+      ],
+      asks: [
+        { q: "range(1, 5) 为什么没有 5？", a: "Python 的区间习惯是「左闭右开」：包含开始值，不包含结束值。range(1, 5) 得到 1、2、3、4。想包含 5 就写 range(1, 6)。" },
+        { q: "break 和 continue 有什么区别？", a: "break 直接跳出整个循环，后面的循环都不做了；continue 只是跳过这一轮剩下的代码，继续下一轮。" },
+        { q: "循环里能修改列表吗？", a: "可以，但一边遍历一边删除元素容易漏项。更稳的做法：先复制一份（for x in list(my_list)），或者先记下要删的元素，循环结束后统一删除。" }
+      ],
+      summary: [
+        "range(n) 从 0 到 n-1，range(a, b) 包含 a 不包含 b",
+        "累加要有一个初始为 0 的变量，在循环里不断加",
+        "while 要保证条件最终变假，break 能提前跳出"
+      ],
+      quiz: [
+        {
+          q: "range(2, 5) 会得到哪些数？",
+          opts: ["2 3 4 5", "2 3 4", "1 2 3 4", "2 5"],
+          a: 1,
+          explain: "包含开始值 2，不包含结束值 5，所以是 2、3、4。",
+          hint: "左闭右开：开始的算，结束的不算。"
+        },
+        {
+          q: "1 + 2 + 3 + 4 的结果是？",
+          opts: ["4", "10", "6", "24"],
+          a: 1,
+          explain: "1+2+3+4 = 10。写循环累加时，注意初始值是 0 还是 1。"
+        }
+      ]
+    },
+    /* ============================ 第 5 课 ============================ */
+    {
+      id: "l5", no: 5, skill: "data", minutes: 16,
+      title: "列表与字典：把一堆数据装起来",
+      goal: "会用列表存有序数据、用字典存带标签的数据，并做简单统计",
+      cards: [
+        {
+          h: "列表：一排储物柜",
+          p: [
+            "列表用方括号 [] 装一串数据，**有顺序，用编号取值，编号从 0 开始**。",
+            "append 加到末尾，remove 删掉指定的值。"
+          ],
+          code: 'fruits = ["苹果", "香蕉", "橙子"]\nprint(fruits[0])\nfruits.append("葡萄")\nprint(len(fruits))',
+          out: "苹果\n4",
+          simple: "列表像一排储物柜，第一个柜子的编号是 0 而不是 1。",
+          check: {
+            q: "[10, 20, 30][2] 等于多少？",
+            opts: ["10", "20", "30", "报错"],
+            a: 2,
+            explain: "索引 0 是 10，索引 1 是 20，索引 2 是 30。"
+          }
+        },
+        {
+          h: "遍历列表做统计",
+          p: [
+            "用 for 遍历列表，再配合 len（个数）、max（最大）、sum（求和）做统计。",
+            "实战里最常见的就是：找最大值、算平均、数个数。"
+          ],
+          code: "scores = [78, 92, 65]\nprint(len(scores))\nprint(max(scores))\nprint(sum(scores) / len(scores))",
+          out: "3\n92\n78.33333333333333",
+          simple: "列表 + 循环 = 批量处理：一条条看过去，把你要的信息记下来。",
+          check: {
+            q: "len([5, 8, 2]) 返回什么？",
+            opts: ["3", "15", "2", "报错"],
+            a: 0,
+            explain: "len 返回元素个数，这里有 3 个元素。"
+          }
+        },
+        {
+          h: "字典：通讯录式的数据",
+          p: [
+            "字典用花括号 {} 存「键 → 值」，**用名字取值**，适合有标签的数据。",
+            "d[\"name\"] 直接取值（键不存在会报错）；d.get(\"name\") 更安全，键不存在时返回 None。"
+          ],
+          code: 'student = {"name": "小林", "score": 92}\nprint(student["name"])\nprint(student.get("age"))',
+          out: "小林\nNone",
+          simple: "字典像通讯录：按名字找人，而不是按「第几个」。",
+          check: {
+            q: '{"name": "Amy"}["name"] 得到什么？',
+            opts: ['"name"', "Amy", "报错", "None"],
+            a: 1,
+            explain: "用键 name 取它对应的值，得到 Amy。"
+          }
+        }
+      ],
+      asks: [
+        { q: "列表和字典怎么选？", a: "有顺序、要按位置取 → 列表；按名字或标签取值、数据成对出现 → 字典。实际项目里经常一起用：一个列表装很多字典。" },
+        { q: "索引为什么从 0 开始？", a: "历史习惯加上内存寻址方式：索引本质是「偏移量」，第一个元素偏移 0。记住从 0 开始就好，练习几题会自动适应。" },
+        { q: "字典可以遍历吗？", a: "可以：for k in d 遍历所有键；for k, v in d.items() 同时拿到键和值。想按顺序输出就用 d.items()。" }
+      ],
+      summary: [
+        "列表有顺序，索引从 0 开始，append 加到末尾",
+        "len / max / sum 配合循环做统计",
+        "字典用键取值，get 比 [] 更安全"
+      ],
+      quiz: [
+        {
+          q: "[1, 2] + [3] 的结果是？",
+          opts: ["[1, 2, 3]", "[1, 3, 2]", "6", "报错"],
+          a: 0,
+          explain: "列表 + 列表 = 拼接成一个更长的列表。",
+          hint: "列表的 + 不是数值相加，是拼接。"
+        },
+        {
+          q: '"score" in {"score": 90} 返回什么？',
+          opts: ["True", "False", "90", "报错"],
+          a: 0,
+          explain: "in 用来判断键是否存在，这里键 score 存在。",
+          hint: "in 判断的是键，不是值。"
+        }
+      ]
+    },
+    /* ============================ 第 6 课 ============================ */
+    {
+      id: "l6", no: 6, skill: "funcs", minutes: 18,
+      title: "函数与综合实战：写一个记账小程序",
+      goal: "会定义和调用函数，分清 return 和 print，把前面的知识拼成一个小项目",
+      cards: [
+        {
+          h: "def：把一段逻辑打包",
+          p: [
+            "函数把一段逻辑打包，起个名字，之后用名字就能重复调用。",
+            "定义用 def，**括号里是输入（参数），return 后面是输出（返回值）**。"
+          ],
+          code: "def add(a, b):\n    return a + b\n\nprint(add(2, 3))\nprint(add(10, 20))",
+          out: "5\n30",
+          simple: "函数像一个插座：给输入（参数），它吐出结果（返回值）。同一个插座可以反复用。",
+          check: {
+            q: "add(2, 3) 的结果是？",
+            opts: ["23", "5", "a+b", "None"],
+            a: 1,
+            explain: "参数 2、3 分别传进 a、b，return a+b 得到 5。"
+          }
+        },
+        {
+          h: "return 和 print 不是一回事",
+          p: [
+            "return 把结果交给调用者；print 只是显示出来。**函数没写 return 时，返回 None**。",
+            "函数里定义的变量，在外面是用不了的（作用域）。"
+          ],
+          code: "def f(x):\n    print(x * 2)\n\nresult = f(3)\nprint(result)",
+          out: "6\nNone",
+          simple: "print 是「说给你听」，return 是「把东西递给你」。没写 return，就等于递了个空气（None）。",
+          check: {
+            q: "函数里没有写 return，调用后得到什么？",
+            opts: ["0", "None", "报错", '""'],
+            a: 1,
+            explain: "Python 函数默认返回 None。"
+          }
+        },
+        {
+          h: "综合项目：记账小程序",
+          p: [
+            "把前面学的拼起来：用列表装账目、用字典存每笔的明细、用函数统计、用循环累加。",
+            "**小项目是最好的检验**：能不能独立写出来，决定你有没有真的学会。"
+          ],
+          code: 'expenses = [\n    {"item": "咖啡", "amount": 25},\n    {"item": "书", "amount": 60},\n]\n\ndef total(items):\n    s = 0\n    for it in items:\n        s += it["amount"]\n    return s\n\nprint(f"总支出：{total(expenses)} 元")',
+          out: "总支出：85 元",
+          simple: "先拆成三个小问题：存数据（列表 + 字典）→ 算总额（函数 + 循环）→ 显示（print 和 f-string）。",
+          check: {
+            q: "total(expenses) 返回什么？",
+            opts: ["85", "60", "25", "[25, 60]"],
+            a: 0,
+            explain: "25 + 60 = 85。"
+          }
+        }
+      ],
+      asks: [
+        { q: "return 和 print 到底差在哪？", a: "print 只显示，结果没法继续用；return 把值交给调用者，可以存进变量继续计算。测试函数时经常要 return 才能断言结果，所以正式代码里多用 return。" },
+        { q: "函数一定要有参数吗？", a: "不一定，def hello(): 也可以没有参数。有参数更灵活，像模板：同一个函数处理不同的数据。" },
+        { q: "报错看不懂怎么办？", a: "从最后一行往上读：先看错误类型（TypeError / ValueError / IndentationError），再看它指出的行号。新手 90% 的错是缩进、括号不配对、类型混用。" }
+      ],
+      summary: [
+        "def 定义函数：参数进，return 出",
+        "print 只显示，return 才把结果交出来，没写 return 就是 None",
+        "小项目 = 前面所有知识点的组合运用"
+      ],
+      quiz: [
+        {
+          q: "函数里 return 后面的代码会怎样？",
+          opts: ["继续执行", "不执行", "执行两次", "报错"],
+          a: 1,
+          explain: "return 会立刻结束函数，后面的代码不会执行。",
+          hint: "return 是「交卷离场」。"
+        },
+        {
+          q: "def f(): print(1) 之后执行 x = f()，x 是什么？",
+          opts: ["1", "None", "报错", '""'],
+          a: 1,
+          explain: "print 不产生返回值，函数默认返回 None。",
+          hint: "print 只显示，不递东西给你。"
+        }
+      ]
+    }
+  ]
+};
+
+/* ============================ 摸底题 ============================ */
+var DIAG = [
+  { id: "d1", skill: "basics", q: 'print("2+3") 会显示什么？', opts: ["5", "2+3", '"2+3"', "报错"], a: 1 },
+  { id: "d2", skill: "basics", q: "下面哪句能创建变量 a 并赋值为 5？", opts: ["a = 5", "5 = a", "a == 5", "var a = 5"], a: 0 },
+  { id: "d3", skill: "basics", q: '"3" + 2 的结果是什么？', opts: ['"32"', "5", "报错 TypeError", '"5"'], a: 2 },
+  { id: "d4", skill: "basics", q: "type(3.0) 返回什么？", opts: ["int", "float", "str", "bool"], a: 1 },
+  { id: "d5", skill: "logic", q: "if 8 > 5: 后面缩进的那行代码会执行吗？", opts: ["会执行", "不会执行", "会报错", "取决于有没有 else"], a: 0 },
+  { id: "d6", skill: "logic", q: "for i in range(3): print(i) 输出什么？", opts: ["0 1 2", "1 2 3", "3", "0 1 2 3"], a: 0 },
+  { id: "d7", skill: "logic", q: "写 while 循环时，怎么避免死循环？", opts: ["把条件永远设为 True", "在循环里让条件最终变成假", "加大括号", "每轮都 print 一次"], a: 1 },
+  { id: "d8", skill: "data", q: "a = [3, 1, 2]，a[1] 是多少？", opts: ["3", "1", "2", "报错"], a: 1 },
+  { id: "d9", skill: "data", q: 'd = {"a": 1}，d["a"] 得到什么？', opts: ["1", '"a"', "报错", "[1]"], a: 0 },
+  { id: "d10", skill: "funcs", q: "def f(x): return x * 2，那么 f(3) 是？", opts: ["6", "3", "None", "报错"], a: 0 }
+];
+
+/* ============================ 结课测验 ============================ */
+var FINAL = [
+  { id: "f1", skill: "basics", q: 'print("3" + "4") 输出什么？', opts: ["7", "34", "报错", '"7"'], a: 1, explain: "两个字符串相加是拼接，结果是 34（文字），不是数字 7。" },
+  { id: "f2", skill: "basics", q: "type(7 / 2) 返回什么？", opts: ["int", "float", "str", "报错"], a: 1, explain: "Python 3 里除法 / 的结果总是 float，7 / 2 = 3.5。" },
+  { id: "f3", skill: "basics", q: "下面哪个变量名是合法的？", opts: ["1st_name", "first-name", "first_name", "first name"], a: 2, explain: "只能用字母、数字、下划线，不能数字开头，不能有空格和减号。" },
+  { id: "f4", skill: "logic", q: "for i in range(1, 4): print(i) 输出什么？", opts: ["1 2 3 4", "1 2 3", "0 1 2 3", "2 3 4"], a: 1, explain: "左闭右开：包含 1，不包含 4。" },
+  { id: "f5", skill: "logic", q: 'score = 90，依次判断 >=90 优秀、>=80 良好、否则加油，会输出？', opts: ["优秀", "良好", "加油", "优秀和良好"], a: 0, explain: "从上往下判断，第一个满足就停。" },
+  { id: "f6", skill: "logic", q: "while True: print(\"hi\") 这段代码的问题是？", opts: ["语法错误", "没有 break，会死循环", "print 不能放 while 里", "没问题"], a: 1, explain: "条件恒为真，又没有 break，会无限打印。" },
+  { id: "f7", skill: "data", q: 'a = ["x", "y"]; a.append("z")，现在 len(a) 是多少？', opts: ["2", "3", "报错", "6"], a: 1, explain: "append 在末尾加一个元素，变成 3 个。" },
+  { id: "f8", skill: "data", q: 'd = {"a": 1}，想安全地取不存在的键 "b"，应该用？', opts: ['d["b"]', 'd.get("b")', "d(b)", "d.index(\"b\")"], a: 1, explain: "d[\"b\"] 会 KeyError；d.get(\"b\") 返回 None，更安全。" },
+  { id: "f9", skill: "data", q: "[10, 20, 30] 里，20 的索引是？", opts: ["0", "1", "2", "20"], a: 1, explain: "索引从 0 开始：10 是 0，20 是 1。" },
+  { id: "f10", skill: "funcs", q: "下面哪个函数会真正返回结果 5 给调用者？", opts: ["def f(): print(5)", "def f(): return 5", "def f(): 5", "def f(): x = 5"], a: 1, explain: "只有 return 会把值交给调用者；print 只是显示，另外两个返回 None。" },
+  { id: "f11", skill: "funcs", q: "函数里执行 return 之后，同一函数里剩下的代码会？", opts: ["继续执行", "不执行", "执行两次", "报错"], a: 1, explain: "return 立即结束函数。" },
+  { id: "f12", skill: "funcs", q: "给函数传参时，add(2, 3) 里的 2 和 3 会分别传给什么？", opts: ["第一个和第二个参数", "只能传给第一个", "会拼成一个字符串", "不会传进去"], a: 0, explain: "参数按位置依次传给函数定义里的参数。" }
+];
+/* =======================================================================
+   引擎：状态、渲染、交互
+   ======================================================================= */
+var KEY = "py-learn-v1";
+var lock = false;
+
+function defaultState() {
+  return {
+    stage: "welcome",
+    diag: { idx: 0, answers: {} },
+    diagCompleted: false,
+    lesson: null,
+    records: {},
+    final: { idx: 0, answers: {}, submitted: false }
+  };
+}
+
+function loadState() {
+  var base = defaultState();
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (!raw) return base;
+    var s = JSON.parse(raw);
+    if (!s || typeof s !== "object") return base;
+    if (["welcome", "diagnose", "report", "lessons", "lesson", "final", "result"].indexOf(s.stage) >= 0) base.stage = s.stage;
+    if (s.diag && typeof s.diag === "object") {
+      base.diag = { idx: Math.min(s.diag.idx || 0, DIAG.length - 1), answers: s.diag.answers || {} };
+    }
+    base.diagCompleted = !!s.diagCompleted;
+    base.lesson = s.lesson && typeof s.lesson === "object" ? s.lesson : null;
+    base.records = s.records && typeof s.records === "object" ? s.records : {};
+    if (s.final && typeof s.final === "object") {
+      base.final = {
+        idx: Math.min(s.final.idx || 0, FINAL.length - 1),
+        answers: s.final.answers || {},
+        submitted: !!s.final.submitted
+      };
+    }
+    if (base.stage === "lesson" && !base.lesson) base.stage = "lessons";
+    return base;
+  } catch (e) { return base; }
+}
+
+var state = loadState();
+
+function saveState() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* 无痕模式忽略 */ }
+}
+
+function $(sel) { return document.querySelector(sel); }
+function esc(v) {
+  return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+function letters(i) { return "ABCDEF"[i] || "?"; }
+function lessonById(id) {
+  for (var i = 0; i < COURSE.lessons.length; i++) if (COURSE.lessons[i].id === id) return COURSE.lessons[i];
+  return null;
+}
+function lessonIndex(id) {
+  for (var i = 0; i < COURSE.lessons.length; i++) if (COURSE.lessons[i].id === id) return i;
+  return -1;
+}
+function totalMinutes() {
+  var t = 0;
+  COURSE.lessons.forEach(function (L) { t += L.minutes; });
+  return t;
+}
+function scrollToTop() { try { window.scrollTo(0, 0); } catch (e) {} }
+function scrollToFeedback() {
+  try {
+    var fb = document.querySelector(".feedback");
+    if (fb && fb.scrollIntoView) fb.scrollIntoView({ behavior: "smooth", block: "center" });
+  } catch (e) {}
+}
+
+/* ---------------- 提示 ---------------- */
+var toastTimer = null;
+function toast(msg) {
+  var el = $("#toast");
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { el.classList.remove("show"); }, 1900);
+}
+
+/* ---------------- 顶部步骤条 ---------------- */
+var STEPS = [
+  { key: "diagnose", label: "摸底" },
+  { key: "report", label: "规划" },
+  { key: "lessons", label: "学习" },
+  { key: "final", label: "测验" }
+];
+
+function renderStepper() {
+  var host = $("#stepper");
+  if (!host) return;
+  if (state.stage === "welcome") { host.innerHTML = ""; return; }
+  var cur = state.stage;
+  if (cur === "lesson") cur = "lessons";
+  if (cur === "result") cur = "final";
+  var curIdx = 0;
+  STEPS.forEach(function (s, i) { if (s.key === cur) curIdx = i; });
+  var html = '<ol class="stepper">';
+  STEPS.forEach(function (s, i) {
+    var cls = i < curIdx ? "done" : (i === curIdx ? "active" : "");
+    if (state.stage === "result") cls = "done";
+    html += '<li class="' + cls + '"><span class="no">' + (i < curIdx || state.stage === "result" ? "✓" : (i + 1)) + '</span>' + s.label + '</li>';
+    if (i < STEPS.length - 1) html += '<span class="sep"></span>';
+  });
+  html += "</ol>";
+  host.innerHTML = html;
+}
+
+/* ---------------- 主渲染 ---------------- */
+function render(top) {
+  var app = $("#app");
+  if (!app) return;
+  var html = "";
+  if (state.stage === "welcome") html = viewWelcome();
+  else if (state.stage === "diagnose") html = viewDiagnose();
+  else if (state.stage === "report") html = viewReport();
+  else if (state.stage === "lessons") html = viewLessons();
+  else if (state.stage === "lesson") html = viewLesson();
+  else if (state.stage === "final") html = viewFinal();
+  else if (state.stage === "result") html = viewResult();
+  else html = viewWelcome();
+  app.innerHTML = html;
+  renderStepper();
+  if (top) scrollToTop();
+}
+
+/* =======================================================================
+   首页
+   ======================================================================= */
+function viewWelcome() {
+  var hasProgress = state.diagCompleted || Object.keys(state.records).length > 0 || state.final.submitted;
+  var features = '' +
+    '<div class="feature-grid">' +
+      '<div class="feature"><div class="step-no">STEP 1</div><div class="ico">🧭</div><h3>10 道摸底题</h3><p>不用准备。答完我就知道你哪里是空白、哪里已经有印象，起点不同，路线就不同。</p></div>' +
+      '<div class="feature"><div class="step-no">STEP 2</div><div class="ico">🗺️</div><h3>专属学习路线</h3><p>4 个能力维度 + 6 节课。薄弱的标「重点学」，已经会的标「快速过」，不浪费你的时间。</p></div>' +
+      '<div class="feature"><div class="step-no">STEP 3</div><div class="ico">🧑‍🏫</div><h3>每步都讲解、都反馈</h3><p>每张小卡片讲一个概念，讲完立刻检查一次。答错有解释，没懂可以「换个更简单的说法」。</p></div>' +
+    '</div>';
+
+  var outline = '<div class="outline" id="outlineBox"><h2>课程大纲<span>共 6 节 · 约 ' + totalMinutes() + ' 分钟</span></h2><ol>';
+  COURSE.lessons.forEach(function (L) {
+    outline += '<li><span class="idx">' + L.no + '</span><div><b>' + esc(L.title) + '</b><small>' + esc(L.goal) + '</small></div></li>';
+  });
+  outline += '</ol><p class="note">每节课 = 讲解卡片（每张都有小检查）→ 你可能会问的问题 → 本课小测。全部做完可以参加结课测验。</p></div>';
+
+  var cta;
+  if (hasProgress) {
+    cta = '<button class="btn primary big" type="button" data-act="resume">继续上次的进度 →</button>' +
+          '<button class="btn big" type="button" data-act="start">重新摸底</button>';
+  } else {
+    cta = '<button class="btn primary big" type="button" data-act="start">开始摸底（约 5 分钟）</button>' +
+          '<button class="btn big" type="button" data-act="outline">先看看大纲</button>';
+  }
+
+  return '<section class="screen">' +
+    '<div class="hero">' +
+      '<span class="tagline">🎯 先摸底 · 再规划 · 一步步带学</span>' +
+      '<h1>零基础，也能<em>一步步学会</em>写程序</h1>' +
+      '<p class="lead">不用自己找教程、不用怕看不懂。先做 10 道摸底题，我会判断你的起点，排一条适合你的路线；然后每一小步都讲解、都检查、都给你反馈，学完还有结课测验。</p>' +
+      '<div class="hero-cta">' + cta + '</div>' +
+    '</div>' +
+    features + outline +
+    '</section>';
+}
+
+/* =======================================================================
+   摸底
+   ======================================================================= */
+function viewDiagnose() {
+  var idx = state.diag.idx;
+  var q = DIAG[idx];
+  var answered = Object.prototype.hasOwnProperty.call(state.diag.answers, q.id) ? state.diag.answers[q.id] : null;
+  var opts = q.opts.map(function (o, i) {
+    var cls = "opt" + (answered === i ? " selected" : "");
+    return '<button type="button" class="' + cls + '" data-act="diag-opt" data-i="' + i + '">' +
+      '<span class="key">' + letters(i) + '</span><span>' + esc(o) + '</span></button>';
+  }).join("");
+
+  var back = idx > 0 ? '<button type="button" class="link" data-act="diag-back">← 上一题</button>' : '<span></span>';
+
+  return '<section class="screen"><div class="card">' +
+    '<div class="quiz-head"><span class="meta">摸底 · 第 ' + (idx + 1) + ' / ' + DIAG.length + ' 题</span>' + back + '</div>' +
+    '<div class="progress"><i style="width:' + Math.round(((idx) / DIAG.length) * 100) + '%"></i></div>' +
+    '<h2 class="q-title">' + esc(q.q) + '</h2>' +
+    '<p class="q-hint">答错不扣分，我只想知道你的起点。不确定也可以凭直觉选一个。</p>' +
+    '<div class="opts">' + opts + '</div>' +
+    '<p class="note">选完自动进入下一题，也可以点「上一题」改答案。</p>' +
+    '</div></section>';
+}
+
+/* =======================================================================
+   诊断报告 + 学习规划
+   ======================================================================= */
+function skillStats() {
+  var map = {};
+  COURSE.skillList.forEach(function (s) { map[s.id] = { correct: 0, total: 0 }; });
+  DIAG.forEach(function (q) {
+    var m = map[q.skill];
+    if (!m) return;
+    m.total++;
+    if (state.diag.answers[q.id] === q.a) m.correct++;
+  });
+  COURSE.skillList.forEach(function (s) {
+    var m = map[s.id];
+    m.ratio = m.total ? m.correct / m.total : 0;
+    m.level = m.ratio >= 0.75 ? 2 : (m.ratio >= 0.4 ? 1 : 0);
+    m.label = m.level === 2 ? "基础稳" : (m.level === 1 ? "有点印象" : "建议从头学");
+  });
+  return map;
+}
+
+function diagCorrectCount() {
+  var n = 0;
+  DIAG.forEach(function (q) { if (state.diag.answers[q.id] === q.a) n++; });
+  return n;
+}
+
+function niveau(correct) {
+  if (correct <= 2) return {
+    k: "zero", label: "几乎零基础 · 从头开始",
+    title: "没关系，我们从最基础的地方开始",
+    msg: "你几乎没接触过 Python，这完全不是问题。我会把每一步拆得非常小：先讲清楚「为什么」，再给你看例子，然后马上检查一次。看不懂随时可以点「换个更简单的说法」。"
+  };
+  if (correct <= 5) return {
+    k: "mid", label: "有一点基础 · 需要理顺",
+    title: "你有零星印象，我们把概念理顺",
+    msg: "你听过一些概念，但可能还没有串起来。路线会从最容易混淆的地方（类型、缩进、range 边界）开始，把零散印象变成真正会写的代码。"
+  };
+  if (correct <= 8) return {
+    k: "high", label: "基础不错 · 查漏补缺",
+    title: "基础比较扎实，我们补细节",
+    msg: "大部分概念你已经会了。简单的课可以快速过，把时间留给还不够熟的部分；建议重点做每节课的小测和最后的结课测验。"
+  };
+  return {
+    k: "high", label: "基础很稳 · 直接冲刺",
+    title: "你的基础很稳，可以直接检验成果",
+    msg: "摸底几乎全对。你可以直接去结课测验验证实力，也可以快速过一遍课程，把细节和表述再校准一下。"
+  };
+}
+
+function skillName(id) {
+  for (var i = 0; i < COURSE.skillList.length; i++) if (COURSE.skillList[i].id === id) return COURSE.skillList[i].name;
+  return "";
+}
+
+function planStatus(level) {
+  if (level === 0) return { k: "focus", label: "重点学" };
+  if (level === 1) return { k: "normal", label: "按计划学" };
+  return { k: "fast", label: "可快速过" };
+}
+
+function viewReport() {
+  var stats = skillStats();
+  var correct = diagCorrectCount();
+  var nv = niveau(correct);
+  var skills = COURSE.skillList.map(function (s) {
+    var m = stats[s.id];
+    var cls = m.level === 2 ? "high" : (m.level === 1 ? "mid" : "zero");
+    return '<div class="skill">' +
+      '<div class="row"><b>' + s.name + ' <span style="color:var(--muted);font-weight:400">· ' + s.desc + '</span></b>' +
+      '<span class="lv ' + cls + '">' + m.label + ' · ' + m.correct + '/' + m.total + '</span></div>' +
+      '<div class="bar"><i class="' + cls + '" style="width:' + Math.round(m.ratio * 100) + '%"></i></div>' +
+      '</div>';
+  }).join("");
+
+  var plan = COURSE.lessons.map(function (L) {
+    var st = planStatus(stats[L.skill].level);
+    var rec = state.records[L.id];
+    var tag = rec ? '<span class="tag done">已完成 ' + rec.mastery + '%</span>' : '<span class="tag ' + st.k + '">' + st.label + '</span>';
+    return '<li><span class="no">' + L.no + '</span>' +
+      '<div class="body"><b>' + esc(L.title) + '</b><small>' + esc(L.goal) + ' · 约 ' + L.minutes + ' 分钟</small></div>' +
+      tag + '</li>';
+  }).join("");
+
+  return '<section class="screen"><div class="card">' +
+    '<div class="report-hero">' +
+      '<span class="level-badge ' + nv.k + '">🎯 你的起点：' + nv.label + '（摸底 ' + correct + '/' + DIAG.length + '）</span>' +
+      '<h1>' + nv.title + '</h1>' +
+      '<p>' + nv.msg + '</p>' +
+    '</div>' +
+    '<div class="divider"></div>' +
+    '<p class="kicker"><span class="dot"></span>四个能力维度</p>' +
+    '<div class="skill-list">' + skills + '</div>' +
+    '<div class="divider"></div>' +
+    '<p class="kicker"><span class="dot"></span>为你排好的路线</p>' +
+    '<ul class="plan">' + plan + '</ul>' +
+    '<div class="plan-summary">' +
+      '<span>共 <b>' + COURSE.lessons.length + '</b> 节课</span>' +
+      '<span>预计 <b>' + totalMinutes() + '</b> 分钟</span>' +
+      '<span>每节课都有 <b>讲解 · 检查 · 建议提问 · 小测</b></span>' +
+    '</div>' +
+    '<div class="actions">' +
+      '<button type="button" class="btn primary big" data-act="to-lessons">开始学习 →</button>' +
+      '<button type="button" class="btn big" data-act="rediagnose">重新摸底</button>' +
+    '</div>' +
+    '<p class="note">提示：标「可快速过」的课也别跳过小测，那是检验细节的地方。</p>' +
+    '</div></section>';
+}
+
+/* =======================================================================
+   课程列表
+   ======================================================================= */
+function viewLessons() {
+  var done = 0, masterySum = 0;
+  COURSE.lessons.forEach(function (L) {
+    var r = state.records[L.id];
+    if (r) { done++; masterySum += r.mastery || 0; }
+  });
+  var avg = done ? Math.round(masterySum / done) : 0;
+
+  var items = COURSE.lessons.map(function (L) {
+    var rec = state.records[L.id];
+    var right;
+    if (rec) right = '<span class="pct">✓ ' + rec.mastery + '%</span><span class="mi">已完成</span>';
+    else if (state.lesson && state.lesson.id === L.id) right = '<span class="mi">进行中</span><span class="mi">继续 →</span>';
+    else right = '<span class="mi">约 ' + L.minutes + ' 分钟</span><span class="mi">' + L.cards.length + ' 步讲解</span>';
+    return '<button type="button" class="lesson-item' + (rec ? " finished" : "") + '" data-act="open-lesson" data-id="' + L.id + '">' +
+      '<span class="no">' + (rec ? "✓" : L.no) + '</span>' +
+      '<span class="body"><b>' + esc(L.title) + '</b><small>' + esc(L.goal) + '</small></span>' +
+      '<span class="right">' + right + '</span>' +
+      '</button>';
+  }).join("");
+
+  return '<section class="screen">' +
+    '<div class="course-overview">' +
+      '<div><h1>学习路线</h1><p>' + esc(COURSE.title) + ' · ' + esc(COURSE.subtitle) + '</p></div>' +
+      '<div class="overall">已完成 <b>' + done + ' / ' + COURSE.lessons.length + '</b>' + (done ? "平均掌握度 " + avg + "%" : "从第 1 节开始") + '</div>' +
+    '</div>' +
+    '<div class="lesson-list mt24">' + items + '</div>' +
+    '<div class="actions mt24">' +
+      '<button type="button" class="btn primary" data-act="go-final">去做结课测验 →</button>' +
+      '<button type="button" class="btn ghost" data-act="back-report">看看我的诊断报告</button>' +
+    '</div>' +
+    '<p class="note">建议按顺序学。每节课做完小测才算完成，进度会自动保存。</p>' +
+    '</section>';
+}
+
+/* =======================================================================
+   上课
+   ======================================================================= */
+function lessonUnits(L, ls) {
+  var total = L.cards.length + 2 + L.quiz.length;
+  var u = 0;
+  if (ls.phase === "cards") u = ls.idx;
+  else if (ls.phase === "summary") u = L.cards.length;
+  else if (ls.phase === "asks") u = L.cards.length + 1;
+  else if (ls.phase === "quiz") u = L.cards.length + 2 + ls.quizIdx;
+  else u = total;
+  return { u: u, total: total, pct: Math.round((u / total) * 100) };
+}
+
+function viewLesson() {
+  var ls = state.lesson;
+  if (!ls) { state.stage = "lessons"; return viewLessons(); }
+  var L = lessonById(ls.id);
+  if (!L) { state.stage = "lessons"; return viewLessons(); }
+  if (["cards", "summary", "asks", "quiz", "done"].indexOf(ls.phase) < 0) ls.phase = "cards";
+  /* 兼容旧存档缺字段 */
+  if (!ls.checks || typeof ls.checks !== "object") ls.checks = {};
+  if (!ls.simple || typeof ls.simple !== "object") ls.simple = {};
+  if (!ls.quiz || typeof ls.quiz !== "object") ls.quiz = {};
+  if (!ls.hint || typeof ls.hint !== "object") ls.hint = {};
+  ls.idx = ls.idx || 0;
+  ls.quizIdx = ls.quizIdx || 0;
+
+  var units = lessonUnits(L, ls);
+  var head = '<div class="lesson-top">' +
+    '<button type="button" class="link" data-act="lesson-exit">← 返回课程列表</button>' +
+    '<span class="steps-ind">第 ' + L.no + ' / ' + COURSE.lessons.length + ' 节 · 进度 ' + units.pct + '%</span>' +
+    '</div><div class="lesson-progress"><i style="width:' + units.pct + '%"></i></div>';
+
+  var body = "";
+  if (ls.phase === "cards") body = lessonCard(L, ls);
+  else if (ls.phase === "summary") body = lessonSummary(L, ls);
+  else if (ls.phase === "asks") body = lessonAsks(L, ls);
+  else if (ls.phase === "quiz") body = lessonQuiz(L, ls);
+  else body = lessonDone(L, ls);
+
+  return '<section class="screen">' + head + '<div class="card">' + body + '</div></section>';
+}
+
+function lessonCard(L, ls) {
+  var i = ls.idx, c = L.cards[i];
+  var ans = ls.checks[i];
+  var showSimple = !!ls.simple[i];
+
+  var bodyP = c.p.map(function (t) {
+    var safe = esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+    return '<p>' + safe + '</p>';
+  }).join("");
+
+  var code = "";
+  if (c.code) {
+    code = '<div class="code-wrap"><pre class="code"><code>' + esc(c.code) + "</code></pre>";
+    if (c.out) code += '<div class="out"><span class="out-label">输出</span><pre>' + esc(c.out) + "</pre></div>";
+    code += "</div>";
+  }
+
+  var simpleBtn = '<button type="button" class="link" data-act="simple" data-i="' + i + '">' +
+    (showSimple ? "收起简单解释" : "🤔 没太懂？换个更简单的说法") + "</button>";
+  var simpleBox = showSimple ? '<div class="simple"><b>再讲一遍：</b>' + esc(c.simple) + "</div>" : "";
+
+  var chk = c.check;
+  var checkHtml;
+  if (!ans) {
+    var optHtml = chk.opts.map(function (o, j) {
+      return '<button type="button" class="opt" data-act="check" data-i="' + j + '">' +
+        '<span class="key">' + letters(j) + '</span><span>' + esc(o) + "</span></button>";
+    }).join("");
+    checkHtml = '<div class="check">' +
+      '<p class="kicker"><span class="dot"></span>停一下，检查一下</p>' +
+      "<h3>" + esc(chk.q) + "</h3>" +
+      '<div class="opts">' + optHtml + "</div>" +
+      "</div>";
+  } else {
+    var fbOpts = chk.opts.map(function (o, j) {
+      var cls = "opt static";
+      if (j === chk.a) cls += " right";
+      else if (j === ans.i) cls += " wrong";
+      else cls += " dim";
+      return '<button type="button" class="' + cls + '"><span class="key">' + letters(j) + "</span><span>" + esc(o) + "</span></button>";
+    }).join("");
+    checkHtml = '<div class="check">' +
+      '<p class="kicker"><span class="dot"></span>检查结果</p>' +
+      '<div class="opts">' + fbOpts + "</div>" +
+      '<div class="feedback ' + (ans.ok ? "ok" : "bad") + '">' +
+        '<p class="fb-title">' + (ans.ok ? "✅ 就是这样，你抓到关键了" : "💡 差一点点，我们一起看") + "</p>" +
+        (ans.ok ? "" : '<p>正确答案是 <b>' + letters(chk.a) + ". " + esc(chk.opts[chk.a]) + "</b></p>") +
+        "<p>" + esc(chk.explain) + "</p>" +
+        '<button type="button" class="btn primary" data-act="card-next">' +
+          (i === L.cards.length - 1 ? "下一步：本课小结 →" : "懂了，继续下一步 →") +
+        "</button>" +
+        '<button type="button" class="btn ghost" data-act="card-retry" data-i="' + i + '">再看一遍这张讲解</button>' +
+      "</div></div>";
+  }
+
+  return '<p class="lesson-title">第 ' + (i + 1) + " / " + L.cards.length + " 步讲解 · " + esc(L.title) + "</p>" +
+    '<div class="card-stage">' +
+      "<h2>" + esc(c.h) + "</h2>" + bodyP + code + simpleBtn + simpleBox +
+    "</div>" + checkHtml;
+}
+
+function lessonSummary(L, ls) {
+  var lis = L.summary.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("");
+  return '<p class="lesson-title">' + esc(L.title) + " · 本课小结</p>" +
+    '<div class="card-stage"><h2>这节课你学会了什么</h2>' +
+      '<div class="summary-box"><h3>📌 记住这 ' + L.summary.length + ' 句话就够了</h3><ul>' + lis + "</ul></div>" +
+      '<p class="note">如果还有哪里卡着，下一节「你可能会问」里先看看，也许答案就在那。</p>' +
+      '<div class="actions"><button type="button" class="btn primary" data-act="goto-asks">下一节：你可能会问 →</button>' +
+      '<button type="button" class="btn ghost" data-act="card-prev">← 回去再看一遍</button></div>' +
+    "</div>";
+}
+
+function lessonAsks(L, ls) {
+  var asks = L.asks.map(function (a) {
+    return '<details class="ask"><summary>' + esc(a.q) + '</summary><div class="answer">' + esc(a.a) + "</div></details>";
+  }).join("");
+  return '<p class="lesson-title">' + esc(L.title) + " · 你可能会问</p>" +
+    '<div class="card-stage"><h2>这些问题，先替你想好了</h2>' +
+      '<p>点开看答案。看完了还没懂，回到上一节再看一遍讲解，或者把问题记下来之后问我。</p>' +
+      '<div class="asks">' + asks + "</div>" +
+      '<div class="actions"><button type="button" class="btn primary" data-act="goto-quiz">我已看完，进入本课小测 →</button></div>' +
+    "</div>";
+}
+
+function lessonQuiz(L, ls) {
+  var qi = ls.quizIdx;
+  var q = L.quiz[qi];
+  var ans = ls.quiz[qi];
+  var hintShown = !!ls.hint[qi];
+
+  var optHtml = q.opts.map(function (o, j) {
+    var cls = "opt";
+    if (!ans) cls += "";
+    else {
+      cls = "opt static";
+      if (j === q.a) cls += " right";
+      else if (j === ans.i) cls += " wrong";
+      else cls += " dim";
+    }
+    var act = ans ? "" : ' data-act="quiz-opt" data-i="' + j + '"';
+    return '<button type="button" class="' + cls + '"' + act + '><span class="key">' + letters(j) + "</span><span>" + esc(o) + "</span></button>";
+  }).join("");
+
+  var hintBtn = !ans ? '<button type="button" class="link" data-act="hint" data-i="' + qi + '">💡 给点提示</button>' : "";
+  var hintBox = hintShown && !ans ? '<div class="simple"><b>提示：</b>' + esc(q.hint) + "</div>" : "";
+
+  var fb = "";
+  if (ans) {
+    fb = '<div class="feedback ' + (ans.ok ? "ok" : "bad") + '">' +
+      '<p class="fb-title">' + (ans.ok ? "✅ 答对了" : "💡 这题容易踩坑") + "</p>" +
+      (ans.ok ? "" : '<p>正确答案是 <b>' + letters(q.a) + ". " + esc(q.opts[q.a]) + "</b></p>") +
+      "<p>" + esc(q.explain) + "</p>" +
+      '<button type="button" class="btn primary" data-act="quiz-next">' +
+        (qi === L.quiz.length - 1 ? "完成本课，看结果 →" : "下一题 →") +
+      "</button></div>";
+  }
+
+  return '<p class="lesson-title">' + esc(L.title) + " · 本课小测 " + (qi + 1) + " / " + L.quiz.length + "</p>" +
+    '<div class="card-stage"><h2>' + esc(q.q) + "</h2>" +
+      hintBtn + hintBox +
+      '<div class="opts">' + optHtml + "</div>" + fb +
+    "</div>";
+}
+
+function lessonDone(L, ls) {
+  var total = L.cards.length + L.quiz.length;
+  var ok = 0;
+  for (var i = 0; i < L.cards.length; i++) if (ls.checks[i] && ls.checks[i].ok) ok++;
+  for (var j = 0; j < L.quiz.length; j++) if (ls.quiz[j] && ls.quiz[j].ok) ok++;
+  var rec = state.records[L.id] || { mastery: Math.round((ok / total) * 100) };
+  var mastery = rec.mastery;
+  var title, msg;
+  if (mastery === 100) { title = "满分通过，这一课真的懂了 🎉"; msg = "每一道检查都答对了。可以放心进入下一课。"; }
+  else if (mastery >= 70) { title = "这节课过关了"; msg = "大部分都答对了。错的那题记住解释就行，不用重来。"; }
+  else { title = "先别急着走，再稳一下"; msg = "正确率还不太够。建议回去把讲解再过一遍，特别是答错的那几步——基础打牢后面会轻松很多。"; }
+
+  var next = lessonIndex(L.id) + 1;
+  var nextL = next < COURSE.lessons.length ? COURSE.lessons[next] : null;
+  var buttons = "";
+  if (mastery < 70) {
+    buttons += '<button type="button" class="btn primary" data-act="review-lesson">再学一遍这节课</button>';
+  }
+  if (nextL) {
+    buttons += '<button type="button" class="btn ' + (mastery >= 70 ? "primary" : "") + '" data-act="next-lesson" data-id="' + nextL.id + '">下一课：' + esc(nextL.title) + " →</button>";
+  } else {
+    buttons += '<button type="button" class="btn primary" data-act="go-final">全部学完，去结课测验 →</button>';
+  }
+  buttons += '<button type="button" class="btn ghost" data-act="lesson-exit">返回课程列表</button>';
+
+  return '<div class="done-hero">' +
+      '<div class="score-ring" style="--p:' + mastery + '"><div class="in"><div><b>' + mastery + '%</b><span>本课掌握度</span></div></div></div>' +
+      "<h1>" + title + "</h1>" +
+      "<p>" + msg + "</p>" +
+      '<p class="note">答对 ' + ok + " / " + total + " 个检查点 · 约 " + L.minutes + " 分钟</p>" +
+    "</div>" +
+    '<div class="divider"></div>' +
+    '<div class="summary-box"><h3>📌 本课要点回顾</h3><ul>' +
+      L.summary.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") +
+    "</ul></div>" +
+    '<div class="actions">' + buttons + "</div>";
+}
+
+/* =======================================================================
+   结课测验
+   ======================================================================= */
+function viewFinal() {
+  var idx = state.final.idx;
+  var q = FINAL[idx];
+  var chosen = Object.prototype.hasOwnProperty.call(state.final.answers, q.id) ? state.final.answers[q.id] : null;
+  var answeredCount = Object.keys(state.final.answers).length;
+
+  var opts = q.opts.map(function (o, i) {
+    return '<button type="button" class="opt' + (chosen === i ? " selected" : "") + '" data-act="final-opt" data-i="' + i + '">' +
+      '<span class="key">' + letters(i) + "</span><span>" + esc(o) + "</span></button>";
+  }).join("");
+
+  var nav = "";
+  if (idx > 0) nav += '<button type="button" class="btn ghost" data-act="final-prev">← 上一题</button>';
+  if (idx < FINAL.length - 1) nav += '<button type="button" class="btn primary" data-act="final-next">下一题 →</button>';
+  else nav += '<button type="button" class="btn primary" data-act="final-submit">提交答案，看成绩</button>';
+
+  return '<section class="screen"><div class="card">' +
+    '<div class="quiz-head"><span class="meta">结课测验 · 第 ' + (idx + 1) + " / " + FINAL.length + " 题</span>" +
+      '<span class="meta">已答 ' + answeredCount + " / " + FINAL.length + "</span></div>" +
+    '<div class="progress"><i style="width:' + Math.round(((idx) / FINAL.length) * 100) + '%"></i></div>' +
+    '<h2 class="q-title">' + esc(q.q) + "</h2>" +
+    '<p class="q-hint">这次不即时反馈，交卷后统一出分，并逐题解析。答案可以随时改。</p>' +
+    '<div class="opts">' + opts + "</div>" +
+    '<div class="actions right">' + nav + "</div>" +
+    '<p class="note">满分 ' + FINAL.length + " 题，答对 80% 以上算通过。</p>" +
+    "</div></section>";
+}
+
+/* =======================================================================
+   成绩 + 逐题解析
+   ======================================================================= */
+function viewResult() {
+  var correct = 0;
+  FINAL.forEach(function (q) { if (state.final.answers[q.id] === q.a) correct++; });
+  var score = Math.round((correct / FINAL.length) * 100);
+  var pass = score >= 80;
+
+  var skillMap = {};
+  COURSE.skillList.forEach(function (s) { skillMap[s.id] = { correct: 0, total: 0 }; });
+  FINAL.forEach(function (q) {
+    var m = skillMap[q.skill];
+    m.total++;
+    if (state.final.answers[q.id] === q.a) m.correct++;
+  });
+  var skills = COURSE.skillList.map(function (s) {
+    var m = skillMap[s.id];
+    var ratio = m.total ? m.correct / m.total : 0;
+    var cls = ratio >= 0.75 ? "high" : (ratio >= 0.4 ? "mid" : "zero");
+    var label = ratio >= 0.75 ? "掌握" : (ratio >= 0.4 ? "半熟" : "要补");
+    return '<div class="skill"><div class="row"><b>' + s.name + '</b><span class="lv ' + cls + '">' + label + " · " + m.correct + "/" + m.total + "</span></div>" +
+      '<div class="bar"><i class="' + cls + '" style="width:' + Math.round(ratio * 100) + '%"></i></div></div>';
+  }).join("");
+
+  var review = FINAL.map(function (q, i) {
+    var chosen = state.final.answers[q.id];
+    var ok = chosen === q.a;
+    var chosenText = chosen == null ? "未作答" : letters(chosen) + ". " + q.opts[chosen];
+    return '<li class="' + (ok ? "right" : "wrong") + '">' +
+      '<p class="rq"><span class="mark">' + (ok ? "✅" : "❌") + "</span><span>" + (i + 1) + ". " + esc(q.q) + "</span></p>" +
+      '<p class="ra">你的答案：<b>' + esc(chosenText) + "</b>" +
+      (ok ? "" : "　正确答案：<b>" + letters(q.a) + ". " + esc(q.opts[q.a]) + "</b>") + "</p>" +
+      '<p class="explain">' + esc(q.explain) + "</p>" +
+      "</li>";
+  }).join("");
+
+  var weakSkills = [];
+  COURSE.skillList.forEach(function (s) {
+    var m = skillMap[s.id];
+    if (m.total && m.correct / m.total < 0.75) weakSkills.push(s.id);
+  });
+  var needLessons = COURSE.lessons.filter(function (L) { return weakSkills.indexOf(L.skill) >= 0; });
+  var reviewBlock = "";
+  if (needLessons.length) {
+    reviewBlock = '<div class="summary-box"><h3>📚 建议复习这几节</h3><ul>' +
+      needLessons.map(function (L) {
+        return '<li>第 ' + L.no + " 课 · " + esc(L.title) + "（" + esc(skillName(L.skill)) + "）</li>";
+      }).join("") +
+      "</ul></div>";
+  }
+
+  var lessonCount = Object.keys(state.records).length;
+
+  return '<section class="screen">' +
+    '<div class="card">' +
+      '<div class="done-hero">' +
+        '<div class="score-ring" style="--p:' + score + '"><div class="in"><div><b>' + score + "%</b><span>结课成绩</span></div></div></div>" +
+        '<span class="level-badge ' + (pass ? "high" : "mid") + '">' + (pass ? "🎓 通过 · 你已经入门了" : "💪 还没到 80%，再练一轮") + "</span>" +
+        "<h1>" + (pass ? "你真的学会基础 Python 了" : "差一点，先补上薄弱的那一块") + "</h1>" +
+        "<p>" + (pass
+          ? "现在你能读懂基础代码、自己写循环和函数，也完成过一个小项目。接下来可以试试把你生活里的一个小需求写成程序。"
+          : "别灰心，答案和解析都在下面。对着错的题回到对应课程再看一遍，第二次考一定会好很多。") + "</p>" +
+        '<p class="note">答对 ' + correct + " / " + FINAL.length + " 题 · 已学完 " + lessonCount + " / " + COURSE.lessons.length + " 节课</p>" +
+      "</div>" +
+      '<div class="divider"></div>' +
+      '<p class="kicker"><span class="dot"></span>各维度得分</p>' +
+      '<div class="skill-list">' + skills + "</div>" +
+      reviewBlock +
+      '<div class="divider"></div>' +
+      '<p class="kicker"><span class="dot"></span>逐题解析</p>' +
+      '<ul class="review-list">' + review + "</ul>" +
+      '<div class="actions">' +
+        '<button type="button" class="btn ' + (pass ? "" : "primary") + '" data-act="retake-final">再考一次</button>' +
+        '<button type="button" class="btn" data-act="to-lessons">回到课程目录</button>' +
+        '<button type="button" class="btn ghost" data-act="restart">从头开始</button>' +
+      "</div>" +
+    "</div></section>";
+}
+
+/* =======================================================================
+   交互处理
+   ======================================================================= */
+function handle(act, i, el) {
+  var L, ls, q;
+
+  if (act === "start") {
+    state.diag = { idx: 0, answers: {} };
+    state.diagCompleted = false;
+    state.stage = "diagnose";
+    saveState(); render(true);
+    return;
+  }
+  if (act === "resume") {
+    state.stage = resumeTarget();
+    saveState(); render(true);
+    return;
+  }
+  if (act === "outline") {
+    var box = document.getElementById("outlineBox");
+    if (box && box.scrollIntoView) box.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+  if (act === "diag-opt") { answerDiag(i); return; }
+  if (act === "diag-back") {
+    if (state.diag.idx > 0) { state.diag.idx--; saveState(); render(true); }
+    return;
+  }
+  if (act === "rediagnose") {
+    state.diag = { idx: 0, answers: {} };
+    state.diagCompleted = false;
+    state.stage = "diagnose";
+    saveState(); render(true);
+    return;
+  }
+  if (act === "to-lessons") {
+    state.stage = "lessons"; saveState(); render(true);
+    return;
+  }
+  if (act === "back-report") {
+    state.stage = "report"; saveState(); render(true);
+    return;
+  }
+  if (act === "go-final") {
+    if (state.final.submitted) {
+      state.stage = "result";
+    } else {
+      if (Object.keys(state.final.answers).length === 0) state.final.idx = 0;
+      state.stage = "final";
+    }
+    saveState(); render(true);
+    return;
+  }
+  if (act === "open-lesson") {
+    openLesson(el ? el.getAttribute("data-id") : null);
+    return;
+  }
+  if (act === "lesson-exit") {
+    state.stage = "lessons"; saveState(); render(true);
+    return;
+  }
+  if (act === "simple") {
+    if (!state.lesson) return;
+    var si = Number(i);
+    state.lesson.simple[si] = !state.lesson.simple[si];
+    saveState(); render(false);
+    return;
+  }
+  if (act === "check") { answerCardCheck(Number(i)); return; }
+  if (act === "card-retry") {
+    if (!state.lesson) return;
+    delete state.lesson.checks[Number(i)];
+    saveState(); render(false); scrollToTop();
+    toast("再看一遍这张讲解，懂了再答");
+    return;
+  }
+  if (act === "card-next") { nextCard(); return; }
+  if (act === "card-prev") {
+    ls = state.lesson;
+    if (!ls) return;
+    if (ls.phase === "summary") { ls.phase = "cards"; ls.idx = lessonById(ls.id).cards.length - 1; }
+    else if (ls.idx > 0) ls.idx--;
+    saveState(); render(true);
+    return;
+  }
+  if (act === "goto-asks") {
+    if (state.lesson) state.lesson.phase = "asks";
+    saveState(); render(true);
+    return;
+  }
+  if (act === "goto-quiz") {
+    if (state.lesson) { state.lesson.phase = "quiz"; state.lesson.quizIdx = 0; }
+    saveState(); render(true);
+    return;
+  }
+  if (act === "hint") {
+    if (!state.lesson) return;
+    state.lesson.hint[Number(i)] = true;
+    saveState(); render(false);
+    return;
+  }
+  if (act === "quiz-opt") { answerLessonQuiz(Number(i)); return; }
+  if (act === "quiz-next") {
+    ls = state.lesson;
+    if (!ls) return;
+    L = lessonById(ls.id);
+    if (ls.quizIdx < L.quiz.length - 1) { ls.quizIdx++; saveState(); render(true); }
+    else finishLesson();
+    return;
+  }
+  if (act === "review-lesson") {
+    ls = state.lesson;
+    if (!ls) return;
+    ls.phase = "cards"; ls.idx = 0; ls.checks = {}; ls.quiz = {}; ls.quizIdx = 0; ls.hint = {};
+    saveState(); render(true);
+    toast("重新开始这一课");
+    return;
+  }
+  if (act === "next-lesson") {
+    openLesson(el ? el.getAttribute("data-id") : null);
+    return;
+  }
+  if (act === "final-opt") {
+    q = FINAL[state.final.idx];
+    state.final.answers[q.id] = Number(i);
+    saveState(); render(false);
+    return;
+  }
+  if (act === "final-prev") {
+    if (state.final.idx > 0) { state.final.idx--; saveState(); render(true); }
+    return;
+  }
+  if (act === "final-next") {
+    if (state.final.idx < FINAL.length - 1) { state.final.idx++; saveState(); render(true); }
+    return;
+  }
+  if (act === "final-submit") {
+    var unanswered = FINAL.length - Object.keys(state.final.answers).length;
+    if (unanswered > 0 && !confirm("还有 " + unanswered + " 题没答，未答的会算错。确定现在交卷吗？")) return;
+    state.final.submitted = true;
+    state.stage = "result";
+    saveState(); render(true);
+    return;
+  }
+  if (act === "retake-final") {
+    state.final = { idx: 0, answers: {}, submitted: false };
+    state.stage = "final";
+    saveState(); render(true);
+    return;
+  }
+  if (act === "restart") { restartAll(); return; }
+}
+
+function resumeTarget() {
+  if (state.final.submitted) return "result";
+  if (state.lesson) return "lesson";
+  if (state.diagCompleted) return "lessons";
+  return "diagnose";
+}
+
+function restartAll() {
+  if (!confirm("会清空摸底结果、课程进度和成绩，全部从头开始。确定吗？")) return;
+  try { localStorage.removeItem(KEY); } catch (e) {}
+  state = defaultState();
+  render(true);
+  toast("已重置，从头开始");
+}
+
+function answerDiag(i) {
+  if (lock) return;
+  var q = DIAG[state.diag.idx];
+  state.diag.answers[q.id] = i;
+  saveState();
+  lock = true;
+  render(false);
+  setTimeout(function () {
+    lock = false;
+    if (state.diag.idx < DIAG.length - 1) {
+      state.diag.idx++;
+      saveState();
+      render(true);
+    } else {
+      state.diagCompleted = true;
+      state.stage = "report";
+      saveState();
+      render(true);
+    }
+  }, 240);
+}
+
+function openLesson(id) {
+  var L = lessonById(id);
+  if (!L) return;
+  state.lesson = {
+    id: L.id, phase: "cards", idx: 0,
+    checks: {}, simple: {}, quiz: {}, quizIdx: 0, hint: {}
+  };
+  state.stage = "lesson";
+  saveState();
+  render(true);
+}
+
+function answerCardCheck(optIdx) {
+  var ls = state.lesson;
+  if (!ls) return;
+  var L = lessonById(ls.id);
+  var card = L.cards[ls.idx];
+  ls.checks[ls.idx] = { i: optIdx, ok: optIdx === card.check.a };
+  saveState();
+  render(false);
+  scrollToFeedback();
+}
+
+function nextCard() {
+  var ls = state.lesson;
+  if (!ls) return;
+  var L = lessonById(ls.id);
+  if (ls.idx < L.cards.length - 1) {
+    ls.idx++;
+    saveState();
+    render(true);
+  } else {
+    ls.phase = "summary";
+    saveState();
+    render(true);
+  }
+}
+
+function answerLessonQuiz(optIdx) {
+  var ls = state.lesson;
+  if (!ls) return;
+  var L = lessonById(ls.id);
+  var q = L.quiz[ls.quizIdx];
+  ls.quiz[ls.quizIdx] = { i: optIdx, ok: optIdx === q.a };
+  saveState();
+  render(false);
+  scrollToFeedback();
+}
+
+function finishLesson() {
+  var ls = state.lesson;
+  if (!ls) return;
+  var L = lessonById(ls.id);
+  var total = L.cards.length + L.quiz.length;
+  var ok = 0;
+  for (var i = 0; i < L.cards.length; i++) if (ls.checks[i] && ls.checks[i].ok) ok++;
+  for (var j = 0; j < L.quiz.length; j++) if (ls.quiz[j] && ls.quiz[j].ok) ok++;
+  state.records[L.id] = { mastery: Math.round((ok / total) * 100), ok: ok, total: total, at: Date.now() };
+  ls.phase = "done";
+  saveState();
+  render(true);
+}
+
+/* 事件委托 */
+document.addEventListener("click", function (e) {
+  var t = e.target && e.target.closest ? e.target.closest("[data-act]") : null;
+  if (!t) return;
+  var act = t.getAttribute("data-act");
+  var i = t.getAttribute("data-i");
+  handle(act, i, t);
+});
+
+/* 启动 */
+render(true);
+</script>
+</body>
+</html>

@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>拾光计划 · 学习任务看板</title>
+<style>
+  :root{
+    --bg:#f4f5fb;
+    --bg-soft:#eceefa;
+    --card:#ffffff;
+    --card-2:#fbfbff;
+    --text:#1b1f2d;
+    --muted:#6b7280;
+    --line:#e7e9f3;
+    --accent:#5b5bd6;
+    --accent-2:#7c6cf6;
+    --accent-soft:#eeeefd;
+    --green:#12a97c;
+    --amber:#e9a23b;
+    --red:#e2575b;
+    --shadow:0 10px 30px -12px rgba(31,35,70,.18), 0 2px 6px -2px rgba(31,35,70,.06);
+    --radius:18px;
+  }
+  html[data-theme="dark"]{
+    --bg:#0e1017;
+    --bg-soft:#131722;
+    --card:#161a24;
+    --card-2:#1a1f2b;
+    --text:#e9ecf5;
+    --muted:#97a0b5;
+    --line:#252b3a;
+    --accent:#8b8bff;
+    --accent-2:#a78bfa;
+    --accent-soft:#22243d;
+    --green:#3ecf9a;
+    --amber:#f0b45c;
+    --red:#f07076;
+    --shadow:0 14px 34px -16px rgba(0,0,0,.7), 0 2px 8px -4px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    transition:background .3s ease,color .3s ease;
+  }
+  /* 背景光斑 */
+  .orbs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .orbs::before,.orbs::after{content:"";position:absolute;border-radius:50%;filter:blur(90px);opacity:.55}
+  .orbs::before{width:520px;height:520px;left:-140px;top:-180px;background:radial-gradient(circle,#c7c5ff,transparent 65%)}
+  .orbs::after{width:560px;height:560px;right:-180px;top:120px;background:radial-gradient(circle,#bfe4ff,transparent 65%)}
+  html[data-theme="dark"] .orbs::before{background:radial-gradient(circle,#3b3a86,transparent 65%);opacity:.45}
+  html[data-theme="dark"] .orbs::after{background:radial-gradient(circle,#123a56,transparent 65%);opacity:.45}
+
+  .wrap{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:0 22px 72px}
+
+  /* 顶栏 */
+  .topbar{
+    position:sticky;top:0;z-index:20;
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+    padding:14px 0;
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    background:var(--bg);
+    background:color-mix(in srgb,var(--bg) 78%,transparent);
+    border-bottom:1px solid transparent;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px}
+  .brand .logo{
+    width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:17px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;
+    box-shadow:0 6px 16px -6px var(--accent);
+  }
+  .brand small{display:block;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.6px}
+  .topbar-actions{display:flex;gap:8px;align-items:center}
+  .btn{
+    appearance:none;border:1px solid var(--line);background:var(--card);color:var(--text);
+    font:inherit;font-size:13px;padding:8px 14px;border-radius:11px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;transition:transform .15s,border-color .2s,background .2s;
+  }
+  .btn:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+  .btn:active{transform:translateY(0)}
+  .btn.ghost{background:transparent}
+  .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;border:none;box-shadow:0 8px 20px -10px var(--accent)}
+  .btn.icon{width:36px;height:36px;padding:0;justify-content:center;font-size:15px}
+
+  /* Hero */
+  .hero{display:grid;grid-template-columns:1.45fr .85fr;gap:22px;align-items:stretch;padding:36px 0 8px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;margin:0 0 12px;font-size:13px;color:var(--muted)}
+  .eyebrow .pulse{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px color-mix(in srgb,var(--green) 22%,transparent)}
+  .hero h1{font-size:clamp(26px,3.6vw,40px);line-height:1.28;margin:0 0 14px;letter-spacing:-.5px}
+  .hero h1 em{font-style:normal;background:linear-gradient(120deg,var(--accent),var(--accent-2) 55%,#3aa7f0);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero .sub{margin:0;color:var(--muted);font-size:14.5px;max-width:520px}
+  .hero-stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+  .stat{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;min-width:104px;
+    box-shadow:var(--shadow);
+  }
+  .stat b{display:block;font-size:20px;line-height:1.2;font-variant-numeric:tabular-nums}
+  .stat span{font-size:11.5px;color:var(--muted);letter-spacing:.4px}
+
+  .ring-card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+    position:relative;overflow:hidden;
+  }
+  .ring-card::after{content:"";position:absolute;inset:auto -40% -60% auto;width:220px;height:220px;background:radial-gradient(circle,var(--accent-soft),transparent 70%);pointer-events:none}
+  .ring{
+    --p:0;
+    width:158px;height:158px;border-radius:50%;display:grid;place-items:center;
+    background:conic-gradient(var(--accent) calc(var(--p) * 1%),var(--line) 0);
+    transition:background .6s ease;
+  }
+  .ring-inner{
+    width:124px;height:124px;border-radius:50%;background:var(--card);display:grid;place-items:center;text-align:center;
+    box-shadow:inset 0 0 0 1px var(--line);
+  }
+  .ring-inner strong{font-size:28px;display:block;line-height:1.1;font-variant-numeric:tabular-nums}
+  .ring-inner span{font-size:11px;color:var(--muted);letter-spacing:.5px}
+  .ring-label{text-align:center;font-size:12.5px;color:var(--muted)}
+  .ring-label b{color:var(--text)}
+
+  /* 区块标题 */
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:38px 0 16px}
+  .section-head h2{margin:0;font-size:19px;letter-spacing:-.2px;display:flex;align-items:center;gap:9px}
+  .section-head h2::before{content:"";width:4px;height:17px;border-radius:4px;background:linear-gradient(var(--accent),var(--accent-2))}
+  .section-head .hint{font-size:12px;color:var(--muted)}
+
+  /* 方向卡片 */
+  .dir-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .dir{
+    text-align:left;font:inherit;color:inherit;cursor:pointer;
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;
+    display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden;
+    box-shadow:var(--shadow);transition:transform .18s ease,border-color .2s,box-shadow .2s;
+  }
+  .dir:hover{transform:translateY(-3px);box-shadow:0 18px 34px -18px rgba(31,35,70,.3)}
+  .dir[aria-pressed="true"]{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));background:linear-gradient(180deg,var(--accent-soft),var(--card) 70%)}
+  .dir[aria-pressed="true"]::before{content:"✓";position:absolute;top:14px;right:14px;width:20px;height:20px;border-radius:50%;
+    display:grid;place-items:center;font-size:11px;color:#fff;background:var(--accent)}
+  .dir .top{display:flex;align-items:center;gap:10px}
+  .dir .emoji{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:19px;
+    background:color-mix(in srgb,var(--c) 14%,var(--card));border:1px solid color-mix(in srgb,var(--c) 26%,var(--line))}
+  .dir h3{margin:0;font-size:15px;line-height:1.3}
+  .dir .desc{margin:0;font-size:12.5px;color:var(--muted);min-height:38px}
+  .bar{height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--c),color-mix(in srgb,var(--c) 60%,#fff));transition:width .5s ease}
+  .dir .foot{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted)}
+  .dir .foot b{color:var(--text);font-weight:600}
+
+  /* 工作区 */
+  .workspace{display:grid;grid-template-columns:1.55fr .95fr;gap:18px;align-items:start;margin-top:22px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+  .panel h2{margin:0 0 4px;font-size:16px;letter-spacing:-.2px}
+  .panel .panel-sub{margin:0 0 16px;font-size:12.5px;color:var(--muted)}
+
+  /* 新增表单 */
+  form.add{display:grid;grid-template-columns:1fr 128px 104px 132px 44px;gap:8px;margin-bottom:14px}
+  .field{display:flex;flex-direction:column;gap:4px;min-width:0}
+  .field label{font-size:11px;color:var(--muted);letter-spacing:.3px}
+  input,select{
+    font:inherit;font-size:13.5px;color:var(--text);background:var(--card-2);
+    border:1px solid var(--line);border-radius:10px;padding:9px 11px;min-width:0;width:100%;
+    outline:none;transition:border-color .2s,box-shadow .2s;
+  }
+  input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 16%,transparent)}
+  input::placeholder{color:color-mix(in srgb,var(--muted) 72%,transparent)}
+  .add-btn{height:38px;align-self:end;border-radius:10px;border:none;cursor:pointer;font-size:17px;color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 8px 18px -10px var(--accent);transition:transform .15s}
+  .add-btn:hover{transform:translateY(-1px)}
+  .add-btn:active{transform:translateY(0) scale(.97)}
+
+  /* 筛选 */
+  .filters{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 14px;align-items:center}
+  .chip{
+    font-size:12.5px;border:1px solid var(--line);background:transparent;color:var(--muted);
+    padding:5px 11px;border-radius:99px;cursor:pointer;font-family:inherit;transition:all .18s;
+  }
+  .chip:hover{color:var(--text);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+  .chip.active{background:var(--accent-soft);color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,var(--line));font-weight:600}
+  .filters .sep{width:1px;height:16px;background:var(--line);margin:0 2px}
+  .filters .count{margin-left:auto;font-size:12px;color:var(--muted)}
+
+  /* 任务列表 */
+  #taskList{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .task{
+    display:flex;gap:11px;align-items:flex-start;padding:12px 13px;border-radius:13px;
+    border:1px solid var(--line);background:var(--card-2);transition:border-color .2s,background .2s,opacity .2s;
+    animation:pop .22s ease both;
+  }
+  @keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .task:hover{border-color:color-mix(in srgb,var(--accent) 28%,var(--line))}
+  .task.done{opacity:.62}
+  .task.done .task-title{text-decoration:line-through;color:var(--muted)}
+  .check{
+    flex:0 0 auto;width:21px;height:21px;margin-top:1px;border-radius:7px;cursor:pointer;
+    border:1.6px solid color-mix(in srgb,var(--muted) 55%,transparent);background:transparent;color:#fff;
+    font-size:12px;line-height:1;display:grid;place-items:center;transition:all .18s;
+  }
+  .check:hover{border-color:var(--accent)}
+  .task.done .check{background:var(--green);border-color:var(--green)}
+  .task-main{flex:1;min-width:0}
+  .task-title{margin:0;font-size:13.8px;word-break:break-word}
+  .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:5px;font-size:11.5px;color:var(--muted)}
+  .tag{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:99px;font-size:11px;
+    background:color-mix(in srgb,var(--c) 12%,transparent);color:color-mix(in srgb,var(--c) 78%,var(--text));border:1px solid color-mix(in srgb,var(--c) 22%,transparent)}
+  .tag .dot{width:5px;height:5px;border-radius:50%;background:var(--c)}
+  .prio{font-size:10.5px;padding:1px 7px;border-radius:6px;font-weight:600}
+  .prio.high{color:var(--red);background:color-mix(in srgb,var(--red) 12%,transparent)}
+  .prio.mid{color:var(--amber);background:color-mix(in srgb,var(--amber) 14%,transparent)}
+  .prio.low{color:var(--muted);background:var(--bg-soft)}
+  .due.overdue{color:var(--red);font-weight:600}
+  .del{flex:0 0 auto;border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:13px;padding:3px 5px;border-radius:7px;opacity:0;transition:opacity .18s,color .18s}
+  .task:hover .del{opacity:1}
+  .del:hover{color:var(--red);background:color-mix(in srgb,var(--red) 10%,transparent)}
+  .empty{text-align:center;padding:30px 10px;color:var(--muted);font-size:13px}
+  .empty .big{font-size:26px;display:block;margin-bottom:6px}
+
+  /* 学习路线 */
+  .roadmap-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .roadmap-head .emoji{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:17px;
+    background:color-mix(in srgb,var(--c) 14%,var(--card));border:1px solid color-mix(in srgb,var(--c) 26%,var(--line))}
+  .roadmap-head h3{margin:0;font-size:14.5px}
+  .roadmap-head p{margin:0;font-size:11.5px;color:var(--muted)}
+  ol.stages{list-style:none;margin:0;padding:0;position:relative}
+  ol.stages::before{content:"";position:absolute;left:15px;top:8px;bottom:14px;width:2px;background:var(--line);border-radius:2px}
+  .stage{position:relative;display:flex;gap:12px;padding:8px 0;cursor:pointer;border-radius:10px;transition:background .18s}
+  .stage:hover{background:var(--card-2)}
+  .stage .node{
+    position:relative;z-index:1;flex:0 0 auto;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;
+    font-size:12px;font-weight:600;background:var(--card);border:2px solid var(--line);color:var(--muted);transition:all .2s;
+  }
+  .stage .txt{padding-top:3px}
+  .stage .txt b{display:block;font-size:13.2px;font-weight:600;color:var(--text);line-height:1.45}
+  .stage .txt span{font-size:11.5px;color:var(--muted);display:block;margin-top:2px}
+  .stage.done .node{background:var(--green);border-color:var(--green);color:#fff}
+  .stage.done .txt b{color:var(--muted);text-decoration:line-through}
+  .stage.next .node{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 14%,transparent)}
+
+  /* Toast */
+  #toast{
+    position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);z-index:60;
+    background:var(--text);color:var(--bg);font-size:13px;padding:9px 16px;border-radius:11px;
+    box-shadow:0 12px 30px -12px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:all .25s;
+  }
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+
+  footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+
+  @media (max-width:980px){
+    .dir-grid{grid-template-columns:repeat(2,1fr)}
+    .workspace{grid-template-columns:1fr}
+    .hero{grid-template-columns:1fr;padding-top:24px}
+    .ring-card{flex-direction:row;justify-content:space-around}
+    form.add{grid-template-columns:1fr 1fr}
+    .add-btn{grid-column:span 2}
+  }
+  @media (max-width:560px){
+    .dir-grid{grid-template-columns:1fr}
+    .hero-stats .stat{flex:1 1 42%}
+    .wrap{padding:0 16px 60px}
+    .topbar .brand small{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="orbs" aria-hidden="true"></div>
+
+<div class="wrap">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">✳</div>
+      <div>拾光计划<small>STUDY ROADMAP</small></div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn ghost" id="resetBtn" title="清空本地数据，恢复示例">重置</button>
+      <button class="btn icon" id="themeBtn" title="切换深浅色" aria-label="切换深浅色">🌙</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <p class="eyebrow"><span class="pulse"></span><span id="today">今天</span> · 保持节奏</p>
+      <h1>把模糊的<em>学习方向</em>，<br />拆成今天能做完的<em>小任务</em>。</h1>
+      <p class="sub">选一个方向 → 沿着阶段路线走 → 每天完成几件小事。进度会自动保存在你的浏览器里，随时关掉、随时接着来。</p>
+      <div class="hero-stats">
+        <div class="stat"><b id="sTotal">0</b><span>全部任务</span></div>
+        <div class="stat"><b id="sDone">0</b><span>已完成</span></div>
+        <div class="stat"><b id="sDoing">0</b><span>进行中</span></div>
+        <div class="stat"><b id="sDue">0</b><span>今日到期</span></div>
+      </div>
+    </div>
+    <div class="ring-card">
+      <div class="ring" id="ring">
+        <div class="ring-inner">
+          <div><strong id="ringPct">0%</strong><span>完成率</span></div>
+        </div>
+      </div>
+      <div class="ring-label">已完成 <b id="ringFrac">0 / 0</b> 项任务<br />距离下一个里程碑还差一点</div>
+    </div>
+  </section>
+
+  <div class="section-head">
+    <h2>学习方向</h2>
+    <span class="hint">点击卡片，查看该方向的阶段路线</span>
+  </div>
+  <div class="dir-grid" id="dirGrid"></div>
+
+  <div class="workspace">
+    <div class="panel">
+      <h2>任务清单</h2>
+      <p class="panel-sub">想到就记下来，按优先级一件件清掉。</p>
+
+      <form class="add" id="taskForm" autocomplete="off">
+        <div class="field">
+          <label for="tTitle">任务内容</label>
+          <input id="tTitle" name="title" placeholder="例如：手写 Promise 并跑通测试" maxlength="80" required />
+        </div>
+        <div class="field">
+          <label for="tDir">方向</label>
+          <select id="tDir" name="dir"></select>
+        </div>
+        <div class="field">
+          <label for="tPrio">优先级</label>
+          <select id="tPrio" name="priority">
+            <option value="high">高</option>
+            <option value="mid" selected>中</option>
+            <option value="low">低</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="tDue">截止日期</label>
+          <input id="tDue" name="due" type="date" />
+        </div>
+        <button class="add-btn" type="submit" aria-label="添加任务">＋</button>
+      </form>
+
+      <div class="filters" id="filters"></div>
+      <ul id="taskList"></ul>
+    </div>
+
+    <aside class="panel">
+      <h2>学习路线</h2>
+      <p class="panel-sub">点击阶段即可打勾，保持“一次只推进一个阶段”。</p>
+      <div id="roadmap" class="roadmap"></div>
+    </aside>
+  </div>
+
+  <footer>
+    <span>拾光计划 · 单文件学习看板</span>
+    <span>数据保存在浏览器 localStorage，不上传任何服务器</span>
+  </footer>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- 静态配置 ---------- */
+  var DIRECTIONS = [
+    { id: "frontend", name: "前端开发", emoji: "🖥️", color: "#6366f1",
+      desc: "从布局到工程化，做一个能上线的作品",
+      stages: [
+        { t: "HTML / CSS 基础与布局", d: "语义化标签、Flex / Grid、响应式" },
+        { t: "JavaScript 核心", d: "作用域、原型、异步、事件循环" },
+        { t: "框架与工程化", d: "React + Vite，组件化与构建" },
+        { t: "项目实战与性能", d: "完整项目、性能优化、部署上线" }
+      ] },
+    { id: "data", name: "数据分析", emoji: "📊", color: "#0ea5e9",
+      desc: "用数据回答业务问题，而不是只画图",
+      stages: [
+        { t: "Excel 函数与透视表", d: "VLOOKUP、数据透视、图表基础" },
+        { t: "SQL 查询与窗口函数", d: "多表关联、聚合、排名与同比" },
+        { t: "Python + pandas 清洗", d: "缺失值、异常值、分组统计" },
+        { t: "可视化与业务报告", d: "指标体系、看板、结论输出" }
+      ] },
+    { id: "english", name: "英语提升", emoji: "🌍", color: "#10b981",
+      desc: "输入打底，输出检验，每天 30 分钟",
+      stages: [
+        { t: "核心词汇 3000", d: "高频词 + 例句，滚动复习" },
+        { t: "长难句与语法体系", d: "从句拆解、时态与非谓语" },
+        { t: "精听 + 泛读输入", d: "逐句听写、外刊精读" },
+        { t: "口语与写作输出", d: "复述、仿写、纠错复盘" }
+      ] },
+    { id: "exam", name: "考研数学", emoji: "📐", color: "#f59e0b",
+      desc: "基础—强化—真题，三轮推进不返工",
+      stages: [
+        { t: "高数基础概念", d: "极限、导数、积分、级数" },
+        { t: "线代与概率", d: "矩阵、特征值、分布与期望" },
+        { t: "强化题型训练", d: "专题刷题、错题归因" },
+        { t: "真题套卷冲刺", d: "限时套卷、复盘节奏" }
+      ] }
+  ];
+
+  var PRIO_LABEL = { high: "高优先", mid: "中优先", low: "低优先" };
+  var STORE_KEY = "study-board-v1";
+  var WEEK = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+
+  /* ---------- 工具 ---------- */
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function iso(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function addDays(n) { var d = new Date(); d.setDate(d.getDate() + n); return iso(d); }
+  function todayISO() { return iso(new Date()); }
+  function dirById(id) {
+    for (var i = 0; i < DIRECTIONS.length; i++) if (DIRECTIONS[i].id === id) return DIRECTIONS[i];
+    return DIRECTIONS[0];
+  }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function shortDate(isoStr) {
+    if (!isoStr) return "";
+    var p = isoStr.split("-");
+    return p[1] + "/" + p[2];
+  }
+  function $(sel) { return document.querySelector(sel); }
+
+  /* ---------- 初始数据 ---------- */
+  function seed() {
+    var t = [
+      ["完成 JS 事件循环专题笔记", "frontend", "high", 1, false],
+      ["手写 Promise，跑通 3 道手写题", "frontend", "mid", 3, false],
+      ["复盘上周项目代码，列出 3 个可优化点", "frontend", "low", -1, true],
+      ["SQL 窗口函数练习 10 题", "data", "high", 0, false],
+      ["用 pandas 清洗一份电商订单数据", "data", "mid", 4, false],
+      ["背 60 个考研核心词并滚动复习", "english", "high", 1, false],
+      ["精听 BBC 6 Minute English 1 篇", "english", "low", 2, false],
+      ["完成 1 篇外刊精读并摘抄长难句", "english", "mid", -2, true],
+      ["高数第 4 章极限专题刷 15 题", "exam", "high", 5, false],
+      ["整理线代矩阵章节公式卡片", "exam", "mid", 2, true]
+    ];
+    return t.map(function (x, i) {
+      return { id: "seed-" + i, title: x[0], dir: x[1], priority: x[2], due: addDays(x[3]), done: x[4] };
+    });
+  }
+  function defaultStages() {
+    var o = {};
+    DIRECTIONS.forEach(function (d) {
+      o[d.id] = d.stages.map(function (_, i) { return i < 2 && d.id === "frontend" ? true : false; });
+    });
+    return o;
+  }
+
+  /* ---------- 状态 ---------- */
+  var state = load();
+
+  function load() {
+    var base = {
+      tasks: seed(),
+      stages: defaultStages(),
+      dir: "frontend",
+      status: "all",
+      theme: "light"
+    };
+    try {
+      var raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return base;
+      var s = JSON.parse(raw);
+      return {
+        tasks: Array.isArray(s.tasks) ? s.tasks : base.tasks,
+        stages: s.stages && typeof s.stages === "object" ? s.stages : base.stages,
+        dir: s.dir || base.dir,
+        status: s.status || "all",
+        theme: s.theme === "dark" ? "dark" : "light"
+      };
+    } catch (e) { return base; }
+  }
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* 隐私模式忽略 */ }
+  }
+  function stagesOf(id) {
+    if (!Array.isArray(state.stages[id])) state.stages[id] = dirById(id).stages.map(function () { return false; });
+    return state.stages[id];
+  }
+
+  /* ---------- 渲染：日期 & 统计 ---------- */
+  function renderHeader() {
+    var now = new Date();
+    $("#today").textContent = now.getFullYear() + " 年 " + (now.getMonth() + 1) + " 月 " + now.getDate() + " 日 · " + WEEK[now.getDay()];
+  }
+
+  function stats() {
+    var tasks = state.tasks, done = 0, due = 0, t = todayISO();
+    tasks.forEach(function (x) {
+      if (x.done) done++;
+      if (!x.done && x.due === t) due++;
+    });
+    return { total: tasks.length, done: done, doing: tasks.length - done, due: due };
+  }
+
+  function renderStats() {
+    var s = stats();
+    $("#sTotal").textContent = s.total;
+    $("#sDone").textContent = s.done;
+    $("#sDoing").textContent = s.doing;
+    $("#sDue").textContent = s.due;
+    var pct = s.total ? Math.round((s.done / s.total) * 100) : 0;
+    $("#ring").style.setProperty("--p", pct);
+    $("#ringPct").textContent = pct + "%";
+    $("#ringFrac").textContent = s.done + " / " + s.total;
+  }
+
+  /* ---------- 渲染：方向卡片 ---------- */
+  function dirCounts(id) {
+    var total = 0, done = 0;
+    state.tasks.forEach(function (x) {
+      if (x.dir !== id) return;
+      total++;
+      if (x.done) done++;
+    });
+    return { total: total, done: done };
+  }
+
+  function renderDirs() {
+    var host = $("#dirGrid");
+    host.innerHTML = DIRECTIONS.map(function (d) {
+      var st = stagesOf(d.id);
+      var done = st.filter(Boolean).length;
+      var pct = Math.round((done / st.length) * 100);
+      var c = dirCounts(d.id);
+      return '' +
+        '<button class="dir" type="button" data-dir="' + d.id + '" aria-pressed="' + (state.dir === d.id) + '" style="--c:' + d.color + '">' +
+          '<div class="top">' +
+            '<span class="emoji" aria-hidden="true">' + d.emoji + '</span>' +
+            '<h3>' + d.name + '</h3>' +
+          '</div>' +
+          '<p class="desc">' + d.desc + '</p>' +
+          '<div class="bar" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100" aria-label="' + d.name + '阶段进度"><i style="width:' + pct + '%"></i></div>' +
+          '<div class="foot"><span>阶段 <b>' + done + '/' + st.length + '</b></span><span>任务 <b>' + c.done + '/' + c.total + '</b></span></div>' +
+        '</button>';
+    }).join("");
+  }
+
+  /* ---------- 渲染：筛选 ---------- */
+  function renderFilters() {
+    var host = $("#filters");
+    var statuses = [
+      { k: "all", n: "全部" },
+      { k: "doing", n: "进行中" },
+      { k: "done", n: "已完成" }
+    ];
+    var dirChips = DIRECTIONS.map(function (d) {
+      return '<button type="button" class="chip" data-filter-dir="' + d.id + '" aria-pressed="' + (state.dir === d.id) + '">' + d.emoji + " " + d.name + '</button>';
+    }).join("");
+    var statusChips = statuses.map(function (s) {
+      return '<button type="button" class="chip" data-filter-status="' + s.k + '" aria-pressed="' + (state.status === s.k) + '">' + s.n + '</button>';
+    }).join("");
+    var list = visibleTasks();
+    host.innerHTML =
+      '<button type="button" class="chip" data-filter-dir="all" aria-pressed="' + (state.dir === "all") + '">全部方向</button>' +
+      dirChips +
+      '<span class="sep" aria-hidden="true"></span>' +
+      statusChips +
+      '<span class="count">' + list.length + " 项</span>";
+    applyPressed(host);
+  }
+  function applyPressed(host) {
+    host.querySelectorAll(".chip").forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("aria-pressed") === "true");
+    });
+  }
+
+  /* ---------- 任务可见性 ---------- */
+  function visibleTasks() {
+    var list = state.tasks.filter(function (x) {
+      if (state.dir !== "all" && x.dir !== state.dir) return false;
+      if (state.status === "doing") return !x.done;
+      if (state.status === "done") return x.done;
+      return true;
+    });
+    var order = { high: 0, mid: 1, low: 2 };
+    list.sort(function (a, b) {
+      if (a.done !== b.done) return a.done ? 1 : -1;
+      var pa = order[a.priority] == null ? 9 : order[a.priority];
+      var pb = order[b.priority] == null ? 9 : order[b.priority];
+      if (pa !== pb) return pa - pb;
+      var da = a.due || "9999-99-99", db = b.due || "9999-99-99";
+      return da < db ? -1 : da > db ? 1 : 0;
+    });
+    return list;
+  }
+
+  function renderTasks() {
+    var host = $("#taskList");
+    var list = visibleTasks();
+    if (!list.length) {
+      host.innerHTML = '<li class="empty"><span class="big">🌱</span>这里还很空，先加一个小任务吧。</li>';
+      return;
+    }
+    var t = todayISO();
+    host.innerHTML = list.map(function (x) {
+      var d = dirById(x.dir);
+      var overdue = !x.done && x.due && x.due < t;
+      return '' +
+        '<li class="task' + (x.done ? " done" : "") + '" data-id="' + x.id + '">' +
+          '<button class="check" type="button" data-act="toggle" aria-label="' + (x.done ? "标记为未完成" : "标记为完成") + '" aria-pressed="' + x.done + '">✓</button>' +
+          '<div class="task-main">' +
+            '<p class="task-title">' + esc(x.title) + '</p>' +
+            '<div class="meta">' +
+              '<span class="tag" style="--c:' + d.color + '"><span class="dot"></span>' + d.name + '</span>' +
+              '<span class="prio ' + x.priority + '">' + (PRIO_LABEL[x.priority] || "中优先") + '</span>' +
+              (x.due ? '<span class="due' + (overdue ? " overdue" : "") + '">' + (overdue ? "已逾期 · " : "截止 ") + shortDate(x.due) + '</span>' : "") +
+            '</div>' +
+          '</div>' +
+          '<button class="del" type="button" data-act="del" aria-label="删除任务" title="删除">✕</button>' +
+        '</li>';
+    }).join("");
+  }
+
+  /* ---------- 渲染：路线 ---------- */
+  function renderRoadmap() {
+    var host = $("#roadmap");
+    if (state.dir === "all") {
+      host.innerHTML = '' +
+        '<div class="empty"><span class="big">🧭</span>先在上方「学习方向」里点选一个方向，<br />这里会展开它的阶段路线。</div>';
+      return;
+    }
+    var dirId = state.dir;
+    var d = dirById(dirId);
+    var st = stagesOf(dirId);
+    var done = st.filter(Boolean).length;
+    var nextIdx = st.indexOf(false);
+    var head = '' +
+      '<div class="roadmap-head" style="--c:' + d.color + '">' +
+        '<span class="emoji" aria-hidden="true">' + d.emoji + '</span>' +
+        '<div><h3>' + d.name + ' · 阶段路线</h3><p>已完成 ' + done + '/' + st.length + ' 个阶段</p></div>' +
+      '</div>';
+    var items = d.stages.map(function (s, i) {
+      var isDone = !!st[i];
+      var isNext = i === nextIdx;
+      return '' +
+        '<li class="stage' + (isDone ? " done" : "") + (isNext ? " next" : "") + '" data-stage="' + i + '" role="checkbox" tabindex="0" aria-checked="' + isDone + '">' +
+          '<span class="node" aria-hidden="true">' + (isDone ? "✓" : (i + 1)) + '</span>' +
+          '<div class="txt"><b>' + s.t + '</b><span>' + s.d + '</span></div>' +
+        '</li>';
+    }).join("");
+    host.innerHTML = head + '<ol class="stages">' + items + '</ol>';
+  }
+
+  /* ---------- 全局渲染 ---------- */
+  function renderAll() {
+    renderStats();
+    renderDirs();
+    renderFilters();
+    renderTasks();
+    renderRoadmap();
+  }
+
+  /* ---------- 交互 ---------- */
+  function toast(msg) {
+    var el = $("#toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { el.classList.remove("show"); }, 1800);
+  }
+
+  function selectDir(id) {
+    state.dir = id;
+    save();
+    renderDirs();
+    renderFilters();
+    renderTasks();
+    renderRoadmap();
+  }
+
+  function setStatus(k) {
+    state.status = k;
+    save();
+    renderFilters();
+    renderTasks();
+  }
+
+  function toggleTask(id) {
+    state.tasks.forEach(function (x) {
+      if (x.id === id) { x.done = !x.done; toast(x.done ? "完成一项，继续保持 ✓" : "已恢复为进行中"); }
+    });
+    save();
+    renderAll();
+  }
+
+  function deleteTask(id) {
+    state.tasks = state.tasks.filter(function (x) { return x.id !== id; });
+    save();
+    renderAll();
+    toast("已删除任务");
+  }
+
+  function toggleStage(i) {
+    if (state.dir === "all") { toast("先选择一个学习方向再打卡"); return; }
+    var dirId = state.dir;
+    var st = stagesOf(dirId);
+    st[i] = !st[i];
+    save();
+    renderDirs();
+    renderRoadmap();
+    toast(st[i] ? "阶段已打卡 ✓" : "已取消该阶段打卡");
+  }
+
+  /* 事件委托 */
+  $("#dirGrid").addEventListener("click", function (e) {
+    var card = e.target.closest("[data-dir]");
+    if (card) selectDir(card.getAttribute("data-dir"));
+  });
+
+  $("#filters").addEventListener("click", function (e) {
+    var b = e.target.closest("button.chip");
+    if (!b) return;
+    if (b.hasAttribute("data-filter-dir")) selectDir(b.getAttribute("data-filter-dir"));
+    else if (b.hasAttribute("data-filter-status")) setStatus(b.getAttribute("data-filter-status"));
+  });
+
+  $("#taskList").addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-act]");
+    if (!btn) return;
+    var li = btn.closest("[data-id]");
+    if (!li) return;
+    var id = li.getAttribute("data-id");
+    if (btn.getAttribute("data-act") === "toggle") toggleTask(id);
+    else deleteTask(id);
+  });
+
+  $("#roadmap").addEventListener("click", function (e) {
+    var stage = e.target.closest("[data-stage]");
+    if (stage) toggleStage(Number(stage.getAttribute("data-stage")));
+  });
+  $("#roadmap").addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    var stage = e.target.closest("[data-stage]");
+    if (stage) { e.preventDefault(); toggleStage(Number(stage.getAttribute("data-stage"))); }
+  });
+
+  /* 添加任务 */
+  var form = $("#taskForm");
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var title = $("#tTitle").value.trim();
+    if (!title) return;
+    var dirSel = $("#tDir").value;
+    var task = {
+      id: "t-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+      title: title,
+      dir: dirSel,
+      priority: $("#tPrio").value,
+      due: $("#tDue").value || "",
+      done: false
+    };
+    state.tasks.push(task);
+    if (state.dir === "all") state.dir = dirSel;
+    save();
+    $("#tTitle").value = "";
+    if (state.status === "done") state.status = "all";
+    renderAll();
+    toast("已添加，去完成它 →");
+  });
+
+  /* 主题 */
+  function applyTheme() {
+    document.documentElement.setAttribute("data-theme", state.theme);
+    $("#themeBtn").textContent = state.theme === "dark" ? "☀️" : "🌙";
+  }
+  $("#themeBtn").addEventListener("click", function () {
+    state.theme = state.theme === "dark" ? "light" : "dark";
+    save();
+    applyTheme();
+  });
+
+  /* 重置 */
+  $("#resetBtn").addEventListener("click", function () {
+    if (!confirm("会清空你添加的任务和打卡记录，恢复成示例数据，确定吗？")) return;
+    try { localStorage.removeItem(STORE_KEY); } catch (e) {}
+    state = load();
+    applyTheme();
+    renderAll();
+    toast("已恢复示例数据");
+  });
+
+  /* ---------- 启动 ---------- */
+  var dirSelect = $("#tDir");
+  dirSelect.innerHTML = DIRECTIONS.map(function (d) {
+    return '<option value="' + d.id + '">' + d.emoji + " " + d.name + '</option>';
+  }).join("");
+  $("#tDue").value = addDays(1);
+
+  renderHeader();
+  applyTheme();
+  renderAll();
+})();
+</script>
+</body>
+</html>

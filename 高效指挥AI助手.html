@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>怎么高效地指挥我 · 使用手册</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --paper: #ffffff;
+    --ink: #16181d;
+    --ink-2: #4a4f5a;
+    --ink-3: #7b8290;
+    --line: #e6e9ef;
+    --accent: #2f6bff;
+    --accent-soft: #eaf0ff;
+    --good: #12855a;
+    --good-soft: #e8f6ef;
+    --bad: #c2413a;
+    --bad-soft: #fdecea;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(16, 24, 40, .04), 0 8px 24px rgba(16, 24, 40, .06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1115;
+      --paper: #161920;
+      --ink: #e8eaef;
+      --ink-2: #b0b6c3;
+      --ink-3: #7d8494;
+      --line: #252a34;
+      --accent: #6b95ff;
+      --accent-soft: #1b2438;
+      --good: #46c98b;
+      --good-soft: #12291f;
+      --bad: #ff7a6f;
+      --bad-soft: #2a1715;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .35);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+                 "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+    line-height: 1.75;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .progress {
+    position: fixed; top: 0; left: 0; height: 3px; width: 0;
+    background: linear-gradient(90deg, var(--accent), #7ea6ff);
+    z-index: 100; transition: width .1s linear;
+  }
+
+  .layout {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 24px 96px;
+    display: grid;
+    grid-template-columns: 236px minmax(0, 1fr);
+    gap: 48px;
+  }
+
+  /* ---------- TOC ---------- */
+  .toc {
+    position: sticky; top: 32px; align-self: start;
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+    padding-top: 56px;
+  }
+  .toc h2 {
+    font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--ink-3); margin: 0 0 12px 12px; font-weight: 600;
+  }
+  .toc a {
+    display: block; padding: 7px 12px; margin-bottom: 2px;
+    color: var(--ink-2); text-decoration: none; font-size: 14px;
+    border-radius: 8px; border-left: 2px solid transparent;
+    transition: all .15s ease;
+  }
+  .toc a:hover { background: var(--accent-soft); color: var(--ink); }
+  .toc a.active {
+    color: var(--accent); background: var(--accent-soft);
+    border-left-color: var(--accent); font-weight: 600;
+  }
+  .toc .num { color: var(--ink-3); font-variant-numeric: tabular-nums; margin-right: 6px; font-size: 12px; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 56px 0 8px; }
+  .badge {
+    display: inline-block; font-size: 12px; font-weight: 600;
+    color: var(--accent); background: var(--accent-soft);
+    padding: 4px 10px; border-radius: 999px; margin-bottom: 18px;
+    letter-spacing: .02em;
+  }
+  h1 {
+    font-size: clamp(30px, 4.4vw, 44px);
+    line-height: 1.2; margin: 0 0 16px;
+    letter-spacing: -.02em; font-weight: 750;
+  }
+  .sub { font-size: 17px; color: var(--ink-2); margin: 0 0 8px; max-width: 46em; }
+  .meta { font-size: 13px; color: var(--ink-3); margin-top: 18px; display: flex; gap: 18px; flex-wrap: wrap; }
+
+  /* ---------- Sections ---------- */
+  section { padding-top: 44px; }
+  h2.sec {
+    font-size: 24px; letter-spacing: -.01em; margin: 0 0 6px;
+    display: flex; align-items: baseline; gap: 12px; font-weight: 700;
+  }
+  h2.sec .idx {
+    font-size: 13px; color: var(--accent); background: var(--accent-soft);
+    padding: 2px 9px; border-radius: 7px; font-variant-numeric: tabular-nums;
+  }
+  h3 { font-size: 17px; margin: 28px 0 10px; font-weight: 650; }
+  p { color: var(--ink-2); margin: 10px 0; }
+  strong { color: var(--ink); font-weight: 650; }
+  a.inline { color: var(--accent); }
+
+  .lead { font-size: 16.5px; color: var(--ink-2); margin-bottom: 22px; }
+
+  /* ---------- Cards ---------- */
+  .card {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 22px 24px;
+    box-shadow: var(--shadow); margin: 18px 0;
+  }
+  .card.quote {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft); padding: 18px 22px;
+  }
+  .card.quote p { margin: 0; color: var(--ink); font-size: 16px; }
+
+  /* ---------- Table ---------- */
+  .tablewrap { overflow-x: auto; margin: 18px 0; border-radius: var(--radius); border: 1px solid var(--line); }
+  table { width: 100%; border-collapse: collapse; background: var(--paper); font-size: 14.5px; }
+  th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--bg); font-size: 12.5px; letter-spacing: .04em; color: var(--ink-3); font-weight: 650; text-transform: uppercase; }
+  tbody tr:last-child td { border-bottom: none; }
+  td strong { color: var(--ink); }
+
+  /* ---------- Compare ---------- */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+  .cmp { border-radius: 12px; padding: 14px 16px; font-size: 14.5px; }
+  .cmp.bad { background: var(--bad-soft); border: 1px solid color-mix(in srgb, var(--bad) 22%, transparent); }
+  .cmp.good { background: var(--good-soft); border: 1px solid color-mix(in srgb, var(--good) 22%, transparent); }
+  .cmp .tag { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; letter-spacing: .04em; }
+  .cmp.bad .tag { color: var(--bad); }
+  .cmp.good .tag { color: var(--good); }
+  .cmp p { margin: 0; color: var(--ink); }
+
+  /* ---------- Modes ---------- */
+  .modes { display: grid; gap: 12px; margin: 18px 0; }
+  .mode {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 18px; display: grid; grid-template-columns: 34px 1fr; gap: 14px;
+    align-items: start;
+  }
+  .mode .n {
+    width: 30px; height: 30px; border-radius: 9px; background: var(--accent-soft);
+    color: var(--accent); font-weight: 700; font-size: 14px;
+    display: grid; place-items: center; margin-top: 2px;
+  }
+  .mode h4 { margin: 0 0 4px; font-size: 15.5px; }
+  .mode p { margin: 0; font-size: 14.5px; }
+  .mode .say {
+    display: block; margin-top: 8px; font-size: 14px; color: var(--accent);
+    background: var(--accent-soft); border-radius: 8px; padding: 7px 11px;
+  }
+
+  /* ---------- Templates ---------- */
+  .tpl {
+    position: relative; background: var(--paper); border: 1px solid var(--line);
+    border-radius: 12px; padding: 16px 18px; margin: 12px 0;
+  }
+  .tpl .tpl-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .tpl h4 { margin: 0; font-size: 14px; color: var(--ink-3); letter-spacing: .04em; font-weight: 650; }
+  .tpl p { margin: 0; font-size: 14.5px; color: var(--ink); }
+  .copy {
+    font: inherit; font-size: 12px; font-weight: 600;
+    color: var(--ink-3); background: var(--bg); border: 1px solid var(--line);
+    padding: 4px 10px; border-radius: 7px; cursor: pointer;
+    transition: all .15s ease; white-space: nowrap;
+  }
+  .copy:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+  .copy.done { color: var(--good); border-color: var(--good); background: var(--good-soft); }
+
+  /* ---------- Boundary list ---------- */
+  .limits { display: grid; gap: 10px; margin: 16px 0; }
+  .limit {
+    display: grid; grid-template-columns: 22px 1fr; gap: 12px;
+    padding: 12px 16px; background: var(--paper); border: 1px solid var(--line); border-radius: 11px;
+  }
+  .limit .x { color: var(--bad); font-weight: 700; }
+  .limit p { margin: 0; font-size: 14.5px; }
+
+  /* ---------- Habits ---------- */
+  .habits { display: grid; gap: 12px; margin: 16px 0; }
+  .habit { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .habit .k { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: .06em; }
+  .habit h4 { margin: 4px 0 6px; font-size: 15.5px; }
+  .habit p { margin: 0; font-size: 14.5px; }
+
+  /* ---------- Closing ---------- */
+  .closing {
+    margin-top: 52px; padding: 30px 32px; border-radius: 18px;
+    background: linear-gradient(135deg, var(--accent), #7c5cff);
+    color: #fff; box-shadow: var(--shadow);
+  }
+  .closing p { color: rgba(255, 255, 255, .92); margin: 8px 0; }
+  .closing .big { font-size: clamp(19px, 2.4vw, 24px); font-weight: 700; color: #fff; line-height: 1.5; margin: 0; }
+
+  footer {
+    margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--line);
+    font-size: 13px; color: var(--ink-3); display: flex; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+  }
+
+  #toTop {
+    position: fixed; right: 22px; bottom: 22px; width: 42px; height: 42px;
+    border-radius: 50%; border: 1px solid var(--line); background: var(--paper);
+    color: var(--ink-2); cursor: pointer; box-shadow: var(--shadow);
+    font-size: 18px; display: grid; place-items: center;
+    opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease;
+    z-index: 90;
+  }
+  #toTop.show { opacity: 1; pointer-events: auto; }
+  #toTop:hover { transform: translateY(-2px); color: var(--accent); }
+
+  /* ---------- Mobile ---------- */
+  .tocToggle { display: none; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; gap: 0; padding: 0 18px 80px; }
+    .toc {
+      position: fixed; inset: 0 0 auto 0; top: 0; z-index: 95;
+      background: var(--paper); max-height: 70vh; overflow-y: auto;
+      padding: 64px 20px 20px; border-bottom: 1px solid var(--line);
+      transform: translateY(-100%); transition: transform .25s ease;
+      box-shadow: var(--shadow);
+    }
+    .toc.open { transform: translateY(0); }
+    .tocToggle {
+      display: grid; place-items: center; position: fixed; right: 18px; top: 14px;
+      width: 44px; height: 44px; border-radius: 12px; z-index: 96;
+      background: var(--paper); border: 1px solid var(--line); color: var(--ink-2);
+      box-shadow: var(--shadow); cursor: pointer; font-size: 18px;
+    }
+    .hero { padding-top: 76px; }
+    .compare { grid-template-columns: 1fr; }
+    .closing { padding: 24px; }
+  }
+
+  @media print {
+    body { background: #fff; }
+    .toc, #toTop, .tocToggle, .copy, .progress { display: none !important; }
+    .layout { display: block; max-width: none; padding: 0; }
+    .card, table, .mode, .limit, .habit, .tpl { box-shadow: none; break-inside: avoid; }
+    section { padding-top: 24px; break-inside: avoid-page; }
+    .closing { background: #f0f3ff; color: var(--ink); }
+    .closing p, .closing .big { color: var(--ink); }
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+
+<button class="tocToggle" id="tocToggle" aria-label="目录">☰</button>
+
+<div class="layout">
+  <aside class="toc" id="toc">
+    <h2>目录</h2>
+    <a href="#s0"><span class="num">00</span>先搞懂一个原理</a>
+    <a href="#s1"><span class="num">01</span>高效请求的 5 个要素</a>
+    <a href="#s2"><span class="num">02</span>四种协作模式</a>
+    <a href="#s3"><span class="num">03</span>出点子的正确姿势</a>
+    <a href="#s4"><span class="num">04</span>可直接抄的模板</a>
+    <a href="#s5"><span class="num">05</span>我的边界</a>
+    <a href="#s6"><span class="num">06</span>三个小习惯</a>
+    <a href="#s7"><span class="num">07</span>一句话总结</a>
+  </aside>
+
+  <main>
+    <header class="hero">
+      <span class="badge">DeepSeek Harness · 使用手册</span>
+      <h1>怎么高效地指挥我</h1>
+      <p class="sub">写给大一、想少走弯路、想把 AI 真正用出效果的人。不是通用教程，是这几天我们实际配合下来，最管用的那一套。</p>
+      <div class="meta">
+        <span>2026-11 版</span>
+        <span>读完约 8 分钟</span>
+        <span>建议收藏</span>
+      </div>
+    </header>
+
+    <!-- 0 -->
+    <section id="s0">
+      <h2 class="sec"><span class="idx">00</span>先搞懂一个原理</h2>
+      <p class="lead">我不是搜索引擎，也不是"问一句答一句"的客服。</p>
+      <p>我更像一个<strong>随时待命的实习生 + 一整个团队</strong>：</p>
+      <div class="card">
+        <p style="margin:0 0 6px">· 能读你的文件、能联网查、能跑命令、能做 PPT / 网页 / 表格</p>
+        <p style="margin:0 0 6px">· 能同时派好几个"分身"并行干活</p>
+        <p style="margin:0">· 能记住你交代过的事（本地存储，不上传）</p>
+      </div>
+      <div class="card quote">
+        <p><strong>这条原理推出一个结论：</strong>你的任务描述质量，直接决定我的输出质量。说得含糊，我就只能猜；猜错了，浪费的是你的时间和我这边的 token（钱）。</p>
+      </div>
+    </section>
+
+    <!-- 1 -->
+    <section id="s1">
+      <h2 class="sec"><span class="idx">01</span>一个高效请求 = 5 个要素</h2>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>要素</th><th>问自己</th><th>不写会怎样</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>目标</strong></td><td>我到底要拿到什么？</td><td>我会给一堆没用的信息</td></tr>
+            <tr><td><strong>背景</strong></td><td>我是谁、什么水平、给谁看、为什么做</td><td>我会给出不符合你的答案</td></tr>
+            <tr><td><strong>约束</strong></td><td>时间、预算、页数、字数、不能用什么</td><td>我会做过头或做不够</td></tr>
+            <tr><td><strong>交付形式</strong></td><td>网页？PPT？Markdown？还是聊天里说</td><td>我会猜，常常猜错</td></tr>
+            <tr><td><strong>验收标准</strong></td><td>什么样算"做完了"、"做好了"</td><td>我会提前交卷</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>对照：差 vs 好</h3>
+
+      <div class="compare">
+        <div class="cmp bad"><span class="tag">✕ 差</span><p>帮我学 Python</p></div>
+        <div class="cmp good"><span class="tag">✓ 好</span><p>我零基础，每周能花 3 小时，想在两个月后自己写个爬虫。给我一个 6 周计划，每周任务不超过 2 小时，最后一周给我一个小项目。</p></div>
+      </div>
+
+      <div class="compare">
+        <div class="cmp bad"><span class="tag">✕ 差</span><p>帮我做个 PPT</p></div>
+        <div class="cmp good"><span class="tag">✓ 好</span><p>9 页，英语课讲 My Role Models，每页配演讲备注，风格干净一点，不要花哨动画。</p></div>
+      </div>
+
+      <div class="compare">
+        <div class="cmp bad"><span class="tag">✕ 差</span><p>帮我查一下公路车</p></div>
+        <div class="cmp good"><span class="tag">✓ 好</span><p>预算 3000–5000，成都，通勤 + 周末骑，身高 178，帮我列 3 款并说明为什么，附来源链接。</p></div>
+      </div>
+
+      <div class="card quote">
+        <p><strong>记住这条：</strong>如果你只愿意多打 20 个字，就补「背景 + 约束 + 交付形式」这三样，性价比最高。</p>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section id="s2">
+      <h2 class="sec"><span class="idx">02</span>四种协作模式，按任务大小选</h2>
+
+      <div class="modes">
+        <div class="mode">
+          <div class="n">1</div>
+          <div>
+            <h4>直接干（小事，一句话）</h4>
+            <p>适合：改写、摘要、格式转换、查一个事实、算个数。</p>
+            <span class="say">「把这份 PDF 的内容整理成 5 条要点」</span>
+          </div>
+        </div>
+
+        <div class="mode">
+          <div class="n">2</div>
+          <div>
+            <h4>先方案，再执行（中等以上，最推荐）</h4>
+            <p>这是最省钱、最不容易返工的一招。我出方案的成本，远低于我做错一版再重做。</p>
+            <span class="say">「先别动手。给我 3 个方案，各自说清利弊和大概工作量，我选一个你再做。」</span>
+          </div>
+        </div>
+
+        <div class="mode">
+          <div class="n">3</div>
+          <div>
+            <h4>并行扇出（活多且能拆）</h4>
+            <p>适合多主题调研、批量处理、同一问题要多角度验证。每个分身有独立上下文，互不干扰，快好几倍。</p>
+            <span class="say">「用 3 个子 agent 并行查 A / B / C，最后合并给我」</span>
+          </div>
+        </div>
+
+        <div class="mode">
+          <div class="n">4</div>
+          <div>
+            <h4>反向使用（我最被低估的用法）</h4>
+            <p>不要只把 AI 当执行者，把它当陪练。执行 AI 满地都是，能挑刺的才值钱。</p>
+            <span class="say">「这个方案有什么漏洞？假设你是评委，会怎么否掉它？」</span>
+            <span class="say">「你先问我 3 个关键问题，再给建议」</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section id="s3">
+      <h2 class="sec"><span class="idx">03</span>出点子的正确姿势</h2>
+
+      <h3>① 要数量，别要质量</h3>
+      <div class="compare">
+        <div class="cmp bad"><span class="tag">✕ 别这样</span><p>给我最好的 3 个点子</p></div>
+        <div class="cmp good"><span class="tag">✓ 这样</span><p>先给我 15 个方向，不要评价、不要排序，越多越杂越好。</p></div>
+      </div>
+      <p><strong>为什么：</strong>一上来就让我"给最好的"，我会收敛到最安全、最平庸的答案。先发散，再你自己挑，最后让我深挖 2 个。</p>
+
+      <h3>② 要多视角，一句话就能加</h3>
+      <div class="card" style="padding:16px 20px"><p style="margin:0">「分别从 <strong>成本 / 可行性 / 三个月后的风险</strong> 三个角度看这件事」</p></div>
+
+      <h3>③ 要"不完善"的版本</h3>
+      <div class="card" style="padding:16px 20px"><p style="margin:0">「先给个粗糙版，我要的是方向不是成品」</p></div>
+      <p>完美主义是效率杀手，尤其在第一轮。</p>
+
+      <h3>④ 让我追问你</h3>
+      <div class="card" style="padding:16px 20px"><p style="margin:0">「想清楚之前先问我 5 个问题」</p></div>
+      <p>很多"我没想法"，其实是"我没被问对问题"。</p>
+    </section>
+
+    <!-- 4 -->
+    <section id="s4">
+      <h2 class="sec"><span class="idx">04</span>可以直接抄的模板</h2>
+      <p class="lead">点右上角「复制」就能拿走，把 ___ 换成你的情况。</p>
+
+      <div class="tpl">
+        <div class="tpl-head"><h4>学习类</h4><button class="copy" data-copy="我是 ___（身份/水平），想学 ___，每周能投入 ___ 小时，目标是 ___（可验证的结果）。给我一个分周计划，每周标出「必须掌握」和「可以跳过」。第一周从最小的练习开始。">复制</button></div>
+        <p>我是 ___（身份/水平），想学 ___，每周能投入 ___ 小时，目标是 ___（可验证的结果）。给我一个分周计划，每周标出「必须掌握」和「可以跳过」。第一周从最小的练习开始。</p>
+      </div>
+
+      <div class="tpl">
+        <div class="tpl-head"><h4>做东西（网页 / PPT / 文档 / 表格）</h4><button class="copy" data-copy="做 ___，用途是 ___，给 ___ 看。要求：___ 页/___ 字，风格 ___，必须有 ___。做完给我预览。">复制</button></div>
+        <p>做 ___，用途是 ___，给 ___ 看。要求：___ 页/___ 字，风格 ___，必须有 ___。做完给我预览。</p>
+      </div>
+
+      <div class="tpl">
+        <div class="tpl-head"><h4>调研类</h4><button class="copy" data-copy="帮我查 ___，我关心的是 ___（价格/方法/风险）。给我 3–5 条结论，每条一句人话 + 一个来源链接。过时的信息要标出来。">复制</button></div>
+        <p>帮我查 ___，我关心的是 ___（价格/方法/风险）。给我 3–5 条结论，每条一句人话 + 一个来源链接。过时的信息要标出来。</p>
+      </div>
+
+      <div class="tpl">
+        <div class="tpl-head"><h4>排错类</h4><button class="copy" data-copy="我做了 ___，期望 ___，实际 ___。报错是：___。我已经试过 ___。帮我定位原因，一次只让我改一处。">复制</button></div>
+        <p>我做了 ___，期望 ___，实际 ___。报错是：___。我已经试过 ___。帮我定位原因，一次只让我改一处。</p>
+      </div>
+
+      <div class="tpl">
+        <div class="tpl-head"><h4>出点子类</h4><button class="copy" data-copy="场景：___。先给我 15 个方向，不评价不排序；然后我挑 3 个，你再逐个展开。">复制</button></div>
+        <p>场景：___。先给我 15 个方向，不评价不排序；然后我挑 3 个，你再逐个展开。</p>
+      </div>
+
+      <div class="tpl">
+        <div class="tpl-head"><h4>复盘类</h4><button class="copy" data-copy="我刚做了 ___，结果 ___。帮我复盘：哪一步是关键、哪一步是运气、下次能改哪一个变量。">复制</button></div>
+        <p>我刚做了 ___，结果 ___。帮我复盘：哪一步是关键、哪一步是运气、下次能改哪一个变量。</p>
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section id="s5">
+      <h2 class="sec"><span class="idx">05</span>我的边界（别指望这些，省得你失望）</h2>
+
+      <div class="limits">
+        <div class="limit"><span class="x">✕</span><p><strong>看不到你的屏幕和界面</strong>——我没法替你点按钮、截你的窗口。UI 上的操作要你手动。</p></div>
+        <div class="limit"><span class="x">✕</span><p><strong>工作区外的文件写入要你点「允许」</strong>——系统层的安全限制，不是我不听话。</p></div>
+        <div class="limit"><span class="x">✕</span><p><strong>会花钱</strong>——每次对话按 token 计费。大任务前你可以问「这个大概多少钱」。</p></div>
+        <div class="limit"><span class="x">✕</span><p><strong>会忘</strong>——换会话就断片。重要的事让我<strong>写进文件</strong>或<strong>存进记忆</strong>。</p></div>
+        <div class="limit"><span class="x">✕</span><p><strong>不能替你做决定</strong>——我能给最优解，但"你想不想"只有你知道。</p></div>
+        <div class="limit"><span class="x">✕</span><p><strong>联网查到的东西可能是错的</strong>——我会给来源，但关键事实你自己要核一遍，尤其论文、法规、价格。</p></div>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section id="s6">
+      <h2 class="sec"><span class="idx">06</span>三个能立刻提升效果的小习惯</h2>
+
+      <div class="habits">
+        <div class="habit">
+          <span class="k">HABIT 01</span>
+          <h4>说「做完给我看」</h4>
+          <p>我会把文件发布成可预览的交付物，而不是在聊天里贴一大段文字。</p>
+        </div>
+        <div class="habit">
+          <span class="k">HABIT 02</span>
+          <h4>不满意就直说"哪里别扭"</h4>
+          <p>「第 3 页排版太挤」「这段太书面了，说人话」。具体的一句否定，比十句"感觉不太对"有用。我不会因为被批评而玻璃心。</p>
+        </div>
+        <div class="habit">
+          <span class="k">HABIT 03</span>
+          <h4>长任务让我先建清单</h4>
+          <p>「这次要好几步，先列个任务清单，做完一项勾一项」。你能看到进度，也能中途改方向。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section id="s7">
+      <div class="closing">
+        <p class="big">把 AI 当同事，不当搜索框。</p>
+        <p>交代清楚背景和验收标准 · 先要方案再要成品 · 让它挑你的毛病 · 重要的事让它落在文件里。</p>
+        <p style="margin-top:16px;font-size:15px;opacity:.9">做到这四条，你的效率会比"随口问一句"高 5–10 倍。</p>
+      </div>
+    </section>
+
+    <footer>
+      <span>DeepSeek Harness · 使用手册 · 2026-11</span>
+      <span>按 ⌘P / Ctrl+P 可存成 PDF</span>
+    </footer>
+  </main>
+</div>
+
+<button id="toTop" aria-label="回到顶部">↑</button>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---- progress bar ----
+  var progress = document.getElementById("progress");
+  var toTop = document.getElementById("toTop");
+
+  function onScroll() {
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    var pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    progress.style.width = pct + "%";
+    if (h.scrollTop > 400) toTop.classList.add("show");
+    else toTop.classList.remove("show");
+    spy();
+  }
+
+  // ---- scrollspy ----
+  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a"));
+  var sections = links.map(function (a) {
+    return document.querySelector(a.getAttribute("href"));
+  });
+
+  function spy() {
+    var pos = window.scrollY + 120;
+    var current = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop <= pos) current = i;
+    }
+    links.forEach(function (a, i) {
+      a.classList.toggle("active", i === current);
+    });
+  }
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll);
+  onScroll();
+
+  // ---- back to top ----
+  toTop.addEventListener("click", function () {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // ---- mobile toc ----
+  var toggle = document.getElementById("tocToggle");
+  var toc = document.getElementById("toc");
+  toggle.addEventListener("click", function () {
+    toc.classList.toggle("open");
+    toggle.textContent = toc.classList.contains("open") ? "✕" : "☰";
+  });
+  toc.addEventListener("click", function (e) {
+    if (e.target.tagName === "A") {
+      toc.classList.remove("open");
+      toggle.textContent = "☰";
+    }
+  });
+
+  // ---- copy buttons ----
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (err) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll(".copy"), function (btn) {
+    btn.addEventListener("click", function () {
+      var text = btn.getAttribute("data-copy") || "";
+      var done = function () {
+        btn.textContent = "已复制";
+        btn.classList.add("done");
+        setTimeout(function () {
+          btn.textContent = "复制";
+          btn.classList.remove("done");
+        }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done, function () {
+          if (fallbackCopy(text)) done();
+        });
+      } else if (fallbackCopy(text)) {
+        done();
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
