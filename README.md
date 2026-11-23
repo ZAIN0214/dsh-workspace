@@ -12,6 +12,8 @@
 ### 🎤 英语口播工作台 · 体育生的 30 天
 `english-oral-lab.html` · **[打开](https://zain0214.github.io/dsh-workspace/english-oral-lab.html)**
 
+> 🚀 **只想马上拍一条？** 看 [口播-今晚就拍.md](口播-今晚就拍.md) —— 一页纸，不打开网页也能开拍。
+
 打开就是**一页**：今天第几天、只做哪一件事、要说哪四句（带朗读音频和重读标记）、一个提词器按钮。别的都收在折叠区里，点「展开完整工作台」才出来。
 
 **怎么用**：把它推到仓库，手机打开 <https://zain0214.github.io/dsh-workspace/english-oral-lab.html>，加到主屏幕。拍摄时看电脑上打印的速查卡，不看手机。
