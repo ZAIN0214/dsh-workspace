@@ -485,7 +485,7 @@ body:not(.lite-on) #lite{display:none !important}
     <button class="btn" id="liteTp">看提词器</button>
     <button class="btn" id="liteDone">今天做完了</button>
   </div>
-  <p class="lite-tip">先听两遍，再跟着念三遍，最后开提词器拍。</p>
+  <p class="lite-tip">先听两遍，再跟着念三遍，最后开提词器拍。<b>这是机器音</b>——只学它的音准和停顿，语气按你自己的来，别学它那个平。</p>
   <div class="lite-foot">
     <button class="lite-link" id="liteMore">展开完整工作台（7 页）</button>
     <details class="firstrun">
@@ -676,7 +676,7 @@ body:not(.lite-on) #lite{display:none !important}
 
 <div class="tablewrap"><table>
 <tr><th>块</th><th>时间</th><th>做什么</th><th>为什么</th></tr>
-<tr><td><b>① 听 + 跟读</b></td><td>8 分钟</td><td>找一段 30–60 秒的母语者口播，<b>影子跟读</b>：他慢你慢，他停你停，不看文本先跟两遍</td><td>建立节奏感和连读肌肉记忆，这一步最不能省</td></tr>
+<tr><td><b>① 听 + 跟读</b></td><td>8 分钟</td><td>先用页面里的<b>参考音频</b>跟节奏和重音；<b>但它的语调是机器的，别学</b>。想学语气，去找一段 30–60 秒的真人母语者口播做<b>影子跟读</b></td><td>节奏和音准可以跟机器学，语气只能跟人学</td></tr>
 <tr><td><b>② 读稿 + 录音</b></td><td>7 分钟</td><td>读今天那条口播稿，用手机录下来，回听一遍</td><td>回听是唯一的反馈来源。不录音的练习等于没练</td></tr>
 <tr><td><b>③ 拍或发</b></td><td>5 分钟</td><td>拍一条，或者只是对着镜头说一遍不发</td><td>对着镜头和对着墙说，完全是两件事</td></tr>
 </table></div>
@@ -2372,7 +2372,7 @@ $$(".tab").forEach(t => t.addEventListener("click", () => gotoTab(t.dataset.p)))
         <div class="mini">
           <div class="mh">极简版 · ${(s.mini||[]).length} 句 · 约 ${miniDur(s)} 秒　·　<span style="color:var(--amber)">带下划线的是重读词</span></div>
           <ol>${(s.mini||[0]).map((k,i)=>`<li>${stress(cut((s.ms||[])[i] || s.lines[k].en))}</li>`).join("")}</ol>
-          <div class="mz">拍不动整篇就拍这个。四句话、十几秒，在抖音是完全成立的一条。先听两遍参考音频，再跟读三遍，然后开提词器拍。</div>
+          <div class="mz">拍不动整篇就拍这个。四句话、十几秒，在抖音是完全成立的一条。先听两遍参考音频，再跟读三遍，然后开提词器拍。<br><b>参考音频是机器合成的</b>：学它的音准、重音位置和停顿，别学语调——合成音的语气是平的，人说话不该这样。</div>
           <div class="btnrow" style="margin-top:10px">
             <button class="btn" data-audio="${idx}">听一遍参考音频</button>
             <button class="btn primary" data-tpm="${idx}">用极简版提词器</button>
