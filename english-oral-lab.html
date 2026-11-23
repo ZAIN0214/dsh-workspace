@@ -450,6 +450,7 @@ body:not(.lite-on) #lite{display:none !important}
 .firstrun li{margin:7px 0}
 .firstrun li b{color:var(--ink)}
 .firstrun code{font-family:var(--mono);font-size:11px;background:var(--panel2);padding:1px 5px;border-radius:4px;border:1px solid var(--line2);word-break:break-all}
+.tspd{font-family:var(--mono);font-size:11px;color:#8a8672;min-width:34px;text-align:center}
 </style>
 </head>
 <body>
@@ -1187,6 +1188,7 @@ body:not(.lite-on) #lite{display:none !important}
   <div class="tbar">
     <span class="tname" id="tpname"></span>
     <div class="fs-ctrl">字号 <input type="range" id="tfs" min="20" max="52" value="30" style="width:80px"></div>
+    <button class="tbtn" id="tpslower">− 慢</button><span class="tspd" id="tpspeed">1.0×</span><button class="tbtn" id="tpfaster">快 +</button>
     <button class="tbtn" id="tpscroll">自动滚动</button>
     <button class="tbtn" id="tpzh">显示中译</button>
     <button class="tbtn" id="tpclose">关闭</button>
@@ -2472,6 +2474,7 @@ function openTP(i, mini){
   tpAuto.dist = Math.max(0, stage.scrollHeight - stage.clientHeight);
   tpAuto.durMs = (mini ? miniSecs : s.secs) * 1000;
   tpAuto.acc = 0;
+  setSpeedK(1);
   const b = $("#tpscroll");
   if(b){
     b.disabled = tpAuto.dist <= 0;
@@ -2487,7 +2490,12 @@ function scrollPxPerTick(dist, durMs, tickMs){
 window.scrollPxPerTick = scrollPxPerTick;
 window.tpAutoState = () => ({ dist: tpAuto.dist, durMs: tpAuto.durMs, tick: TP_TICK });
 
-let tpAuto = { dist: 0, durMs: 0, acc: 0 };
+let tpAuto = { dist: 0, durMs: 0, acc: 0, k: 1 };
+function setSpeedK(k){
+  tpAuto.k = Math.min(2, Math.max(0.4, Math.round(k*10)/10));
+  const el=$("#tpspeed"); if(el) el.textContent = tpAuto.k.toFixed(1)+"×";
+}
+window.setSpeedK = setSpeedK;
 const TP_TICK = 40;
 
 function paintTPCount(){
@@ -2495,7 +2503,7 @@ function paintTPCount(){
   if(!st || !el) return;
   const denom = Math.max(1, st.scrollHeight - st.clientHeight);
   const pct = Math.min(100, Math.round(st.scrollTop / denom * 100));
-  const leftSec = tpAuto.durMs > 0 ? Math.max(0, Math.round(tpAuto.durMs * (1 - Math.min(1, st.scrollTop / denom)) / 1000)) : 0;
+  const leftSec = tpAuto.durMs > 0 ? Math.max(0, Math.round(tpAuto.durMs * (1 - Math.min(1, st.scrollTop / denom)) / (1000 * (tpAuto.k||1)))) : 0;
   el.textContent = (isNaN(pct) ? 0 : pct) + "%" + (tpAuto.durMs > 0 ? " · 剩 " + leftSec + " 秒" : "");
 }
 function closeTP(){
@@ -2513,7 +2521,7 @@ $("#tpscroll").onclick = () => {
   tpTimer = setInterval(()=>{
     const st = $("#tpstage");
     if(!st) return;
-    const step = scrollPxPerTick(tpAuto.dist, tpAuto.durMs, TP_TICK);
+    const step = scrollPxPerTick(tpAuto.dist, tpAuto.durMs, TP_TICK) * tpAuto.k;
     tpAuto.acc += step;
     const px = Math.floor(tpAuto.acc);
     if(px > 0){ st.scrollTop += px; tpAuto.acc -= px; }
@@ -2521,6 +2529,8 @@ $("#tpscroll").onclick = () => {
     if(st.scrollTop >= st.scrollHeight - st.clientHeight - 1){ stopScroll(); }
   }, TP_TICK);
 };
+$("#tpslower").onclick = () => setSpeedK(tpAuto.k - 0.2);
+$("#tpfaster").onclick = () => setSpeedK(tpAuto.k + 0.2);
 $("#tpzh").onclick = () => {
   const el = $("#tptzh"), on = el.style.display === "none";
   el.style.display = on ? "block" : "none";
@@ -2583,6 +2593,10 @@ function playAudio(n, btn){
   }catch(e){ resetBtn(btn); return false; }
 }
 window.playAudio = playAudio;
+window.audioState = () => _au.el
+  ? { has: true, paused: _au.el.paused, t: +(_au.el.currentTime || 0).toFixed(2),
+      dur: +(_au.el.duration || 0).toFixed(2), src: (_au.el.src || "").slice(0, 5) }
+  : { has: false };
 
 /* ================= drills ================= */
 $("#drills").innerHTML = DRILLS.map(d => `
