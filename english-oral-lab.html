@@ -2467,13 +2467,43 @@ function openTP(i, mini){
   $("#tp").classList.add("on");
   $("#tpstage").scrollTop = 0;
   document.body.style.overflow = "hidden";
+  // 自动滚动的速度由「要滚多少」除以「这段稿子多长」决定，不是固定 1px
+  const stage = $("#tpstage");
+  tpAuto.dist = Math.max(0, stage.scrollHeight - stage.clientHeight);
+  tpAuto.durMs = (mini ? miniSecs : s.secs) * 1000;
+  tpAuto.acc = 0;
+  const b = $("#tpscroll");
+  if(b){
+    b.disabled = tpAuto.dist <= 0;
+    b.classList.remove("on");
+    b.textContent = tpAuto.dist > 0 ? "自动滚动" : "一屏放得下，不用滚";
+  }
+  paintTPCount();
+}
+function scrollPxPerTick(dist, durMs, tickMs){
+  if(!(dist > 0) || !(durMs > 0) || !(tickMs > 0)) return 0;
+  return dist / (durMs / tickMs);
+}
+window.scrollPxPerTick = scrollPxPerTick;
+window.tpAutoState = () => ({ dist: tpAuto.dist, durMs: tpAuto.durMs, tick: TP_TICK });
+
+let tpAuto = { dist: 0, durMs: 0, acc: 0 };
+const TP_TICK = 40;
+
+function paintTPCount(){
+  const st = $("#tpstage"), el = $("#tpcnt");
+  if(!st || !el) return;
+  const denom = Math.max(1, st.scrollHeight - st.clientHeight);
+  const pct = Math.min(100, Math.round(st.scrollTop / denom * 100));
+  const leftSec = tpAuto.durMs > 0 ? Math.max(0, Math.round(tpAuto.durMs * (1 - Math.min(1, st.scrollTop / denom)) / 1000)) : 0;
+  el.textContent = (isNaN(pct) ? 0 : pct) + "%" + (tpAuto.durMs > 0 ? " · 剩 " + leftSec + " 秒" : "");
 }
 function closeTP(){
   $("#tp").classList.remove("on");
   document.body.style.overflow = "";
   stopScroll();
 }
-function stopScroll(){ tpScroll = false; clearInterval(tpTimer); $("#tpscroll").classList.remove("on"); $("#tpscroll").textContent = "自动滚动"; }
+function stopScroll(){ tpScroll = false; clearInterval(tpTimer); const b=$("#tpscroll"); if(b){ b.classList.remove("on"); b.textContent = "自动滚动"; } }
 $("#tpclose").onclick = closeTP;
 $("#tpscroll").onclick = () => {
   if(tpScroll){ stopScroll(); return; }
@@ -2482,10 +2512,14 @@ $("#tpscroll").onclick = () => {
   $("#tpscroll").textContent = "暂停滚动";
   tpTimer = setInterval(()=>{
     const st = $("#tpstage");
-    st.scrollTop += 1;
-    const pct = Math.min(100, Math.round(st.scrollTop / Math.max(1, st.scrollHeight - st.clientHeight) * 100));
-    $("#tpcnt").textContent = (isNaN(pct)?0:pct) + "%";
-  }, 55);
+    if(!st) return;
+    const step = scrollPxPerTick(tpAuto.dist, tpAuto.durMs, TP_TICK);
+    tpAuto.acc += step;
+    const px = Math.floor(tpAuto.acc);
+    if(px > 0){ st.scrollTop += px; tpAuto.acc -= px; }
+    paintTPCount();
+    if(st.scrollTop >= st.scrollHeight - st.clientHeight - 1){ stopScroll(); }
+  }, TP_TICK);
 };
 $("#tpzh").onclick = () => {
   const el = $("#tptzh"), on = el.style.display === "none";
