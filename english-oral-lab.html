@@ -2376,7 +2376,7 @@ $$(".tab").forEach(t => t.addEventListener("click", () => gotoTab(t.dataset.p)))
           <ol>${(s.mini||[0]).map((k,i)=>`<li>${stress(cut((s.ms||[])[i] || s.lines[k].en))}</li>`).join("")}</ol>
           <div class="mz">拍不动整篇就拍这个。四句话、十几秒，在抖音是完全成立的一条。先听两遍参考音频，再跟读三遍，然后开提词器拍。<br><b>参考音频是机器合成的</b>：学它的音准、重音位置和停顿，别学语调——合成音的语气是平的，人说话不该这样。</div>
           <div class="btnrow" style="margin-top:10px">
-            <button class="btn" data-audio="${idx}">听一遍参考音频</button>
+            <button class="btn" data-audio="${s.n}">听一遍参考音频</button>
             <button class="btn primary" data-tpm="${idx}">用极简版提词器</button>
           </div>
         </div>
@@ -2575,6 +2575,12 @@ function playAudio(n, btn){
   try{
     if(!_au.el){
       _au.el = new Audio();
+      _au.el.preload = "auto";
+      // 必须挂进 DOM：iOS 上有些版本会拒绝播放「游离」的 Audio 对象
+      _au.el.setAttribute("playsinline","");
+      _au.el.style.display = "none";
+      _au.el.id = "refaudio";
+      document.body.appendChild(_au.el);
       _au.el.addEventListener("ended", ()=>{ resetBtn(_au.btn); _au.btn=null; });
     }
     if(_au.btn && _au.btn!==btn) resetBtn(_au.btn);
