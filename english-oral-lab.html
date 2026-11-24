@@ -490,6 +490,10 @@ footer{text-align:center;padding:40px 16px 20px;color:var(--ink3);font-size:12px
 .lite-acts .btn.primary{font-weight:600}
 .lite-speed{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
 .lite-speed-hint{font-size:12px;color:var(--ink3);line-height:1.5}
+.lite-nudge{margin:0 0 16px;padding:11px 13px;border-radius:10px;background:var(--amber-soft);border:1px solid color-mix(in srgb,var(--amber) 32%,var(--line));font-size:13px;line-height:1.6;color:var(--ink2)}
+.lite-nudge b{color:var(--ink)}
+.lite-nudge[hidden]{display:none}
+.lite-nudge button{background:none;border:0;padding:0;font:inherit;color:var(--brand);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .lite-foot{margin-top:38px;padding-top:22px;border-top:1px solid var(--line)}
 .lite-link{background:none;border:0;padding:0;font-size:13px;color:var(--ink3);cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-family:var(--sans)}
 .lite-link:hover{color:var(--brand)}
@@ -581,6 +585,7 @@ body:not(.lite-on) #lite{display:none !important}
   <div class="lite-sub" id="liteSub"></div>
   <ol class="lite-lines" id="liteLines"></ol>
   <div class="lite-meta" id="liteMeta"></div>
+  <p class="lite-nudge no-print" id="liteNudge" hidden></p>
   <div class="lite-acts">
     <button class="btn primary" id="litePlay">▶ 听一遍</button>
     <button class="btn" id="liteTp">看提词器</button>
@@ -2562,6 +2567,26 @@ $$(".tab").forEach(t => t.addEventListener("click", () => gotoTab(t.dataset.p)))
     b2.addEventListener("click",()=>setMode("lite"));
     row.appendChild(b2);
     paintLite(n,p);
+    paintNudge(n);
+  }
+
+  // 「开始日期填早了、其实还没开始」是最容易让人放弃的情形：
+  // 第 8 天打开、被安排拍第 3 条，但一条都没发过。这里给他一键把计划拉回今天。
+  function paintNudge(n){
+    const box=$("#liteNudge"); if(!box) return;
+    const done = LS.get("days", []);
+    const doneN = Array.isArray(done) ? done.length : 0;
+    if(n===null || n<=3 || doneN>0){ box.hidden = true; box.innerHTML = ""; return; }
+    box.hidden = false;
+    box.innerHTML = `今天是<b>第 ${n} 天</b>，但你一条都还没打过卡——开始日期可能填早了。`+
+      `<button id="liteNudgeFix">把开始日期改成今天，从第 1 条重新开始</button>`;
+    const fix = box.querySelector("#liteNudgeFix");
+    if(fix) fix.addEventListener("click", ()=>{
+      const t = new Date();
+      const v = t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0");
+      inp.value = v; LS.set("start", v); paint();
+      window.scrollTo({top:0, behavior:"instant"});
+    });
   }
 
   function setMode(m){
