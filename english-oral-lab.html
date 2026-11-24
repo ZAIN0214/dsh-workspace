@@ -235,6 +235,11 @@ td b{color:var(--ink)}
 .errow .ed{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--ink3)}
 .errow .delbtn{width:30px;height:30px;flex:0 0 auto;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink3);font-size:15px;line-height:1;cursor:pointer}
 .errow .delbtn:hover{color:var(--red);border-color:var(--red)}
+.dlink{border:0;background:var(--brand-soft);color:var(--brand);font-family:var(--sans);font-size:11.5px;
+  padding:4px 8px;border-radius:20px;cursor:pointer;white-space:nowrap;min-height:26px}
+.dlink:hover{background:var(--brand);color:#fff}
+.drill.flash{animation:flash2 1.2s ease}
+@keyframes flash2{0%,100%{box-shadow:0 0 0 0 transparent}30%{box-shadow:0 0 0 3px var(--amber)}}
 
 /* ---------- misc ---------- */
 .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13.5px;margin:10px 0}
@@ -2977,24 +2982,54 @@ $("#drills").innerHTML = DRILLS.map(d => `
   const norm = v => String(v==null?"":v).trim().toLowerCase();
   const today = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
 
+  // 单词 → 哪一组发音训练（用最小对立词表反查，think 会指向第 1 组 /θ/ 和 /s/）
+  const DRILL_OF = (function(){
+    const map = {};
+    (typeof DRILLS !== "undefined" ? DRILLS : []).forEach((d, i) => {
+      (d.pairs || []).forEach(p => {
+        if(!Array.isArray(p)) return;
+        [p[0], p[3]].forEach(wd => {
+          const k = norm(wd);
+          if(k && map[k] === undefined) map[k] = i;
+        });
+      });
+    });
+    return map;
+  })();
+  const drillTitle = i => (typeof DRILLS !== "undefined" && DRILLS[i]) ? DRILLS[i].t : "";
+
   function render(){
     if(!items.length){
       list.innerHTML = '<p class="note" style="margin:0">还没有记录。做一次 15 句发音诊断，把听错的词记进来。</p>';
       return;
     }
-    const cnt = {};
-    items.forEach(it => { const k=norm(it.w); if(k) cnt[k]=(cnt[k]||0)+1; });
+    const cnt = {}, dcount = {};
+    items.forEach(it => {
+      const k = norm(it.w);
+      if(k) cnt[k] = (cnt[k] || 0) + 1;
+      const di = DRILL_OF[k];
+      if(di !== undefined) dcount[di] = (dcount[di] || 0) + 1;
+    });
     const hot = Object.keys(cnt).filter(k=>cnt[k]>=2)
       .sort((a,b)=>cnt[b]-cnt[a])
       .map(k => escH((items.find(it=>norm(it.w)===k)||{}).w || k) + "×" + cnt[k]);
+    const hotDrill = Object.keys(dcount).sort((a,b)=>dcount[b]-dcount[a])[0];
     const rows = items.slice().reverse().map((it,i)=>{
       const idx = items.length-1-i;
+      const di = DRILL_OF[norm(it.w)];
       const arrow = it.h ? ' <span class="arr">→ ' + escH(it.h) + '</span>' : '';
-      return '<div class="errow"><b>' + escH(it.w) + '</b>' + arrow +
+      const link = (di !== undefined)
+        ? ' <button class="dlink" data-d="' + di + '" title="跳到这一组发音训练">第 ' + (di+1) + ' 组 ' + escH(drillTitle(di)) + '</button>'
+        : '';
+      return '<div class="errow"><b>' + escH(it.w) + '</b>' + arrow + link +
         '<span class="ed">' + escH(it.d||"") + '</span>' +
         '<button class="delbtn" data-del="' + idx + '" title="删掉这条">×</button></div>';
     }).join("");
-    list.innerHTML = (hot.length ? '<p class="note" style="margin:0 0 10px">错 2 次以上的：<b>' + hot.join("、") + '</b> —— 先集中打这几个。</p>' : "") + rows;
+    let head = "";
+    if(hotDrill !== undefined && dcount[hotDrill] >= 2)
+      head += '<p class="note" style="margin:0 0 6px">反复错的音：<b>' + escH(drillTitle(hotDrill)) + '</b> ×' + dcount[hotDrill] + ' —— 直接去练这一组。</p>';
+    if(hot.length) head += '<p class="note" style="margin:0 0 10px">错 2 次以上的词：<b>' + hot.join("、") + '</b></p>';
+    list.innerHTML = head + rows;
   }
 
   function save(){ items = items.slice(-200); LS.set(KEY, items); render(); }
@@ -3012,6 +3047,18 @@ $("#drills").innerHTML = DRILLS.map(d => `
     if(confirm("清空全部 " + items.length + " 条错音记录？")){ items = []; save(); }
   });
   list.addEventListener("click", e => {
+    const dl = e.target.closest("[data-d]");
+    if(dl){
+      const i = parseInt(dl.dataset.d, 10);
+      const all = document.querySelectorAll("#drills .drill");
+      const target = all[i];
+      if(target){
+        if(target.scrollIntoView) target.scrollIntoView({block:"center"});
+        target.classList.add("flash");
+        setTimeout(()=>target.classList.remove("flash"), 1300);
+      }
+      return;
+    }
     const b = e.target.closest("[data-del]");
     if(!b) return;
     const i = parseInt(b.dataset.del, 10);
