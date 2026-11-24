@@ -2179,6 +2179,16 @@ const LS = {
   get(k, d){ try{ const v = localStorage.getItem("eolab."+k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
   set(k, v){ try{ localStorage.setItem("eolab."+k, JSON.stringify(v)); }catch(e){} }
 };
+// 完播率达标线按片长定：≤20 秒看 40%，≥60 秒看 25%，中间线性插值（就是①里那两格数）
+const completionTarget = secs => {
+  const v = Number(secs);
+  if(!(v > 0)) return 40;
+  if(v <= 20) return 40;
+  if(v >= 60) return 25;
+  return Math.round(40 - (v - 20) * (15 / 40));
+};
+window.completionTarget = completionTarget;
+
 const stress = t => String(t).replace(/\*([^*]+)\*/g, '<b class="str">$1</b>');
 const miniDur = s => (s && s.miniSecs) ? s.miniSecs : 12;
 const cut = s => s.replace(/ \/ /g, ' <span class="cut">/</span> ');
@@ -2888,22 +2898,31 @@ $("#drills").innerHTML = DRILLS.map(d => `
   });
 
   function updateAvg(){
-    const fin = SCRIPTS.map(s=>parseFloat(logs[s.n+".finish"])).filter(v=>!isNaN(v));
-    const pr  = SCRIPTS.map(s=>parseFloat(logs[s.n+".pron"])).filter(v=>!isNaN(v));
-    const a = fin.length ? (fin.reduce((x,y)=>x+y,0)/fin.length).toFixed(1) : "—";
+    // 每条的达标线按它自己的片长算（28 秒要 37%，64 秒只要 25%），不能一刀切
+    const rows = SCRIPTS.map(s=>{
+      const v = parseFloat(logs[s.n+".finish"]);
+      return isNaN(v) ? null : {s, v, t: completionTarget(s.secs)};
+    }).filter(Boolean);
+    const pr = SCRIPTS.map(s=>parseFloat(logs[s.n+".pron"])).filter(v=>!isNaN(v));
+    const a = rows.length ? (rows.reduce((x,y)=>x+y.v,0)/rows.length).toFixed(1) : "—";
     const b = pr.length  ? (pr.reduce((x,y)=>x+y,0)/pr.length).toFixed(1)  : "—";
+    const pass = rows.filter(r=>r.v>=r.t).length;
+    const avgT = rows.length ? Math.round(rows.reduce((x,y)=>x+y.t,0)/rows.length) : null;
     let el = document.getElementById("avgbox");
     if(!el){
       el = document.createElement("div");
       el.id = "avgbox"; el.className = "card tight"; el.style.marginTop = "14px";
       box.parentElement.insertBefore(el, box.nextSibling);
     }
-    el.innerHTML = `<b>当前均值</b>　完播率 <span class="ring">${a}%</span>　发音自评 <span class="ring">${b} / 5</span>
-      <div class="hint" style="margin-top:6px">${
-        a !== "—" && a < 25 ? "完播率低于 25%：先砍到 20 秒，只留最狠的两句。" :
-        a !== "—" && a < 40 ? "完播率在 25–40% 之间：开场 3 秒需要重做，删掉所有铺垫。" :
-        a !== "—" ? "完播率过线了，可以开始试着把稿子拉长 10 秒。" :
-        "填几条数据之后，这里会自动给你调整建议。"
+    const hint = !rows.length ? "填几条数据之后，这里会自动给你调整建议。"
+      : pass/rows.length < 0.34 ? "先把最长的几条换成极简版（十几秒）再发——长度是最快的变量。"
+      : pass < rows.length ? `还有 ${rows.length-pass} 条没过：把开场 3 秒重做、删掉所有铺垫。`
+      : `全部过线（平均线 ${avgT}%）：把过线那条的结构抄成模板，下次再加 10 秒。`;
+    el.innerHTML = `<b>当前均值</b>　完播率 <span class="ring">${a === "—" ? "—" : a + "%"}</span>　` +
+      (rows.length ? `过线 <b>${pass}/${rows.length}</b> 条　` : "") +
+      `发音自评 <span class="ring">${b} / 5</span>
+      <div class="hint" style="margin-top:6px">${hint}${
+        rows.length ? `（达标线按每条自己的片长算，你这几条的平均线是 ${avgT}%）` : ""
       }</div>`;
   }
   updateAvg();
@@ -2931,9 +2950,7 @@ $("#drills").innerHTML = DRILLS.map(d => `
     if(df!==null){
       // 同一张 40% / 25% 的达标线，是按片长分的：≤20 秒看 40%，≥60 秒看 25%，中间线性插值
       let target=null;
-      if(dsec!==null && dsec>=5){
-        target = dsec<=20 ? 40 : (dsec>=60 ? 25 : Math.round(40-(dsec-20)*(15/40)));
-      }
+      if(dsec!==null && dsec>=5) target = completionTarget(dsec);
       if(target!==null){
         if(df < Math.round(target*0.65)) add(0,`完整完播 · 严重偏低（${dsec} 秒要 ${target}%）`,"中段把人劝退了",
           `先把总长砍到 <b>20 秒</b>；删掉第二段的一半；检查有没有<b>在解释</b>而不是<b>在演</b>的句子——「因为这样能提高效率」这种就是解释，删掉。每 4–6 秒换一次景别。`);
