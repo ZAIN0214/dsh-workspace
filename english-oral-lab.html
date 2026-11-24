@@ -7,10 +7,10 @@
 <style>
 :root{
   --bg:#f6f4ee; --panel:#ffffff; --panel2:#fbfaf6;
-  --ink:#1b1a17; --ink2:#4a4841; --ink3:#726e5c;
+  --ink:#1b1a17; --ink2:#4a4841; --ink3:#6b6755;
   --line:#e4e0d5; --line2:#efece3;
-  --brand:#1f5a46; --brand-soft:#e6efe9;
-  --amber:#b8741a; --amber-soft:#fbf0dd;
+  --brand:#1f5a46; --brand-soft:#e6efe9; --onbrand:#fff;
+  --amber:#8f5c12; --amber-soft:#fbf0dd;
   --cut:#8a5510;
   --red:#a3372a;
   --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
@@ -21,9 +21,9 @@
 @media (prefers-color-scheme: dark){
   :root{
     --bg:#14140f; --panel:#1c1c16; --panel2:#20201a;
-    --ink:#eeece2; --ink2:#bdb9a9; --ink3:#8e8a78;
+    --ink:#eeece2; --ink2:#bdb9a9; --ink3:#96927d;
     --line:#33322a; --line2:#2a2922;
-    --brand:#6fb894; --brand-soft:#1e2d26;
+    --brand:#6fb894; --brand-soft:#1e2d26; --onbrand:#0f2419;
     --amber:#e0a54a; --amber-soft:#2c2415;
     --cut:#e0a54a;
     --red:#d9786a;
@@ -105,7 +105,7 @@ td b{color:var(--ink)}
 .pillars{display:flex;flex-wrap:wrap;gap:7px;margin:6px 0 18px}
 .pbtn{border:1px solid var(--line);background:var(--panel);color:var(--ink2);font-size:12.5px;padding:7px 12px;border-radius:999px;cursor:pointer;font-family:var(--sans);transition:.15s}
 .pbtn:hover{border-color:var(--brand)}
-.pbtn.on{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+.pbtn.on{background:var(--brand);border-color:var(--brand);color:var(--onbrand);font-weight:600}
 .topic{display:flex;gap:13px;padding:13px 0;border-bottom:1px solid var(--line2)}
 .topic:last-child{border-bottom:0}
 .tno{font-family:var(--mono);font-size:11px;color:var(--ink3);padding-top:3px;min-width:22px}
@@ -165,8 +165,8 @@ td b{color:var(--ink)}
 .btnrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .btn{border:1px solid var(--line);background:var(--panel);color:var(--ink2);font-family:var(--sans);font-size:13px;padding:8px 14px;border-radius:8px;cursor:pointer;transition:.15s;font-weight:500;min-height:40px;display:inline-flex;align-items:center;justify-content:center;line-height:1.25}
 .btn:hover{border-color:var(--brand);color:var(--brand)}
-.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
-.btn.primary:hover{opacity:.9;color:#fff}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--onbrand)}
+.btn.primary:hover{opacity:.9;color:var(--onbrand)}
 .btn.on{background:var(--brand-soft);border-color:var(--brand);color:var(--brand)}
 
 /* ---------- pronunciation ---------- */
@@ -186,7 +186,7 @@ td b{color:var(--ink)}
 @media(min-width:560px){.grid30{grid-template-columns:repeat(10,minmax(0,1fr));gap:5px}}
 .grid30 .day{aspect-ratio:1;min-width:0;border:1px solid var(--line);background:var(--panel);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--ink3);cursor:pointer;transition:.12s;user-select:none}
 .grid30 .day:hover{border-color:var(--brand)}
-.grid30 .day.done{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+.grid30 .day.done{background:var(--brand);border-color:var(--brand);color:var(--onbrand);font-weight:600}
 .grid30 .day.today{border-color:var(--amber);border-width:2px;color:var(--amber);font-weight:700}
 .hint{font-size:12px;color:var(--ink3);margin-top:6px}
 
@@ -238,11 +238,11 @@ td b{color:var(--ink)}
 .ratebox{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:10px;padding:2px 3px 2px 10px;background:var(--panel)}
 .ratebox .rl{font-size:11.5px;color:var(--ink3);font-family:var(--mono);margin-right:4px}
 .ratebox .rate{border:0;background:transparent;color:var(--ink2);font-family:var(--sans);font-size:12.5px;padding:7px 9px;border-radius:8px;cursor:pointer;min-height:32px;line-height:1.2}
-.ratebox .rate.on{background:var(--brand);color:#fff;font-weight:600}
+.ratebox .rate.on{background:var(--brand);color:var(--onbrand);font-weight:600}
 .ratebox .rate:hover:not(.on){color:var(--brand)}
 .dlink{border:0;background:var(--brand-soft);color:var(--brand);font-family:var(--sans);font-size:11.5px;
   padding:4px 8px;border-radius:20px;cursor:pointer;white-space:nowrap;min-height:26px}
-.dlink:hover{background:var(--brand);color:#fff}
+.dlink:hover{background:var(--brand);color:var(--onbrand)}
 .drill.flash{animation:flash2 1.2s ease}
 @keyframes flash2{0%,100%{box-shadow:0 0 0 0 transparent}30%{box-shadow:0 0 0 3px var(--amber)}}
 
@@ -276,7 +276,7 @@ footer{text-align:center;padding:40px 16px 20px;color:var(--ink3);font-size:12px
 /* 分级自测 */
 .lvlblock{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin:11px 0;background:var(--panel)}
 .lvlhead{background:var(--panel2);padding:8px 14px;font-family:var(--mono);font-size:11px;letter-spacing:.07em;color:var(--ink2);border-bottom:1px solid var(--line2);display:flex;gap:8px;align-items:center}
-.lvlhead .lv{background:var(--brand);color:#fff;border-radius:4px;padding:1px 6px;font-weight:700}
+.lvlhead .lv{background:var(--brand);color:var(--onbrand);border-radius:4px;padding:1px 6px;font-weight:700}
 .lvlblock .strow{padding:9px 14px}
 
 /* 写稿骨架 */
@@ -357,8 +357,8 @@ footer{text-align:center;padding:40px 16px 20px;color:var(--ink3);font-size:12px
 .timer .lbl{font-size:12.5px;color:var(--ink3);flex:1;min-width:110px;line-height:1.4}
 .tbtn2{border:1px solid var(--line);background:var(--panel2);color:var(--ink2);font-size:12.5px;padding:6px 12px;border-radius:8px;cursor:pointer;font-family:var(--sans);margin:0}
 .tbtn2:hover{border-color:var(--brand);color:var(--brand)}
-.tbtn2.pri{background:var(--brand);border-color:var(--brand);color:#fff}
-.tbtn2.pri:hover{opacity:.9;color:#fff}
+.tbtn2.pri{background:var(--brand);border-color:var(--brand);color:var(--onbrand)}
+.tbtn2.pri:hover{opacity:.9;color:var(--onbrand)}
 
 /* 分镜 */
 .shot{display:grid;grid-template-columns:80px 58px 1fr;gap:11px;padding:11px 0;border-bottom:1px dashed var(--line2);align-items:start}
@@ -372,7 +372,7 @@ footer{text-align:center;padding:40px 16px 20px;color:var(--ink3);font-size:12px
 /* 镜头类型 */
 .stype{display:flex;gap:11px;padding:10px 0;border-bottom:1px solid var(--line2);align-items:flex-start}
 .stype:last-child{border-bottom:0}
-.stype .k{font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;background:var(--brand);width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.stype .k{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--onbrand);background:var(--brand);width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
 .stype .n{font-size:13.5px;color:var(--ink);font-weight:600;margin-bottom:2px}
 .stype .d{font-size:12.5px;color:var(--ink3);line-height:1.55}
 .stype .pc2{font-family:var(--mono);font-size:10px;color:var(--brand);margin-left:6px;font-weight:600}
@@ -440,6 +440,8 @@ footer{text-align:center;padding:40px 16px 20px;color:var(--ink3);font-size:12px
 .lite-acts{display:flex;gap:10px;flex-wrap:wrap}
 .lite-acts .btn{padding:13px 20px;font-size:14.5px}
 .lite-acts .btn.primary{font-weight:600}
+.lite-speed{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
+.lite-speed-hint{font-size:12px;color:var(--ink3);line-height:1.5}
 .lite-foot{margin-top:38px;padding-top:22px;border-top:1px solid var(--line)}
 .lite-link{background:none;border:0;padding:0;font-size:13px;color:var(--ink3);cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-family:var(--sans)}
 .lite-link:hover{color:var(--brand)}
@@ -519,6 +521,15 @@ body:not(.lite-on) #lite{display:none !important}
     <button class="btn primary" id="litePlay">▶ 听一遍</button>
     <button class="btn" id="liteTp">看提词器</button>
     <button class="btn" id="liteDone">今天做完了</button>
+  </div>
+  <div class="lite-speed">
+    <span class="ratebox" id="liteRate" role="group" aria-label="参考音频速度">
+      <span class="rl">参考音频</span>
+      <button class="rate on" data-rate="1">1.0×</button>
+      <button class="rate" data-rate="0.75">0.75×</button>
+      <button class="rate" data-rate="0.5">0.5×</button>
+    </span>
+    <span class="lite-speed-hint">跟不上就先 0.75×，顺了再回 1.0×</span>
   </div>
   <p class="lite-tip">先听两遍，再跟着念三遍，最后开提词器拍。<b>这是机器音</b>——只学它的音准和停顿，语气按你自己的来，别学它那个平。</p>
   <div class="lite-foot">
@@ -2690,7 +2701,7 @@ let audioRate = Number(LS.get("rate", 1));
 if([1, 0.75, 0.5].indexOf(audioRate) < 0) audioRate = 1;
 window.audioRateState = () => audioRate;
 function paintRate(){
-  $$("#ratebox .rate").forEach(b => b.classList.toggle("on", Number(b.dataset.rate) === audioRate));
+  $$(".rate").forEach(b => b.classList.toggle("on", Number(b.dataset.rate) === audioRate));
 }
 function setAudioRate(v){
   const n = Number(v);
@@ -3001,14 +3012,14 @@ $("#drills").innerHTML = DRILLS.map(d => `
 
 /* ---------- 参考音频速度：绑定 ---------- */
 (function(){
-  const box = $("#ratebox");
-  if(!box) return;
+  const boxes = ["#ratebox","#liteRate"].map(sel => $(sel)).filter(Boolean);
+  if(!boxes.length) return;
   paintRate();
-  box.addEventListener("click", e => {
+  boxes.forEach(box => box.addEventListener("click", e => {
     const b = e.target.closest("[data-rate]");
     if(!b) return;
     setAudioRate(b.dataset.rate);
-  });
+  }));
 })();
 
 /* ---------- 错音本 ---------- */
