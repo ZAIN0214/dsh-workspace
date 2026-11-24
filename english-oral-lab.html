@@ -386,6 +386,30 @@ footer{text-align:center;padding:40px 16px 20px;color:var(--ink3);font-size:12px
 .cv .art em{position:absolute;bottom:7px;left:9px;font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.5);font-style:normal}
 .cv .cap{padding:8px 10px;font-size:11.5px;color:var(--ink3);line-height:1.45}
 .cv .cap b{color:var(--ink2);font-family:var(--mono);font-size:10px;display:block;margin-bottom:2px}
+/* 封面放大：3:4 满屏，三种版式，截图即封面 */
+.cv{cursor:pointer;transition:transform .12s,border-color .12s}
+.cv:hover{border-color:var(--brand);transform:translateY(-1px)}
+.cv .cap b{color:var(--ink2);font-family:var(--mono);font-size:10px;display:block;margin-bottom:2px}
+.cv .cap i{font-style:normal;color:var(--brand);font-size:10.5px}
+#cvbig{position:fixed;inset:0;z-index:140;background:#0b0b09;display:none;flex-direction:column;align-items:center;justify-content:center;gap:11px;padding:12px 12px 18px;overflow:auto}
+#cvbig.on{display:flex}
+.cvbar,.cvseg{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center}
+.cvbar .pbtn,.cvseg .pbtn{min-height:34px}
+.cvno{font-family:var(--mono);font-size:12px;color:#cfcbbd;min-width:34px;text-align:center}
+.cvstage{width:min(86vw,380px);aspect-ratio:3/4;border-radius:8px;overflow:hidden;background:linear-gradient(160deg,#1f5a46,#0f2a1c);display:flex;flex-direction:column;box-shadow:0 10px 34px rgba(0,0,0,.55);flex:0 0 auto}
+.cvstage .cvband{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:6%;flex:1 1 auto;min-height:0}
+.cvstage .cbtxt{font-family:var(--serif);font-weight:600;color:#fff;text-align:center;line-height:1.2;font-size:min(46px,11.2vw);letter-spacing:.02em;max-width:100%}
+.cvstage .cbsub{font-family:var(--mono);font-size:min(13px,3.3vw);color:rgba(255,255,255,.74);text-align:center;line-height:1.45;padding:0 4%}
+.cvstage .cvface{display:none;align-items:center;justify-content:center;border:1px dashed rgba(255,255,255,.34);border-radius:6px;color:rgba(255,255,255,.55);font-family:var(--mono);font-size:11.5px;text-align:center;padding:8px;line-height:1.5}
+.cvstage[data-v="top"] .cvband{flex:0 0 40%}
+.cvstage[data-v="top"] .cvface{display:flex;flex:1;margin:0 5% 5%}
+.cvstage[data-v="left"]{flex-direction:row}
+.cvstage[data-v="left"] .cvband{flex:0 0 56%;align-items:flex-start}
+.cvstage[data-v="left"] .cbtxt{font-size:min(33px,8.4vw);text-align:left}
+.cvstage[data-v="left"] .cbsub{text-align:left;padding:0}
+.cvstage[data-v="left"] .cvface{display:flex;flex:1;margin:5% 5% 5% 0}
+.cvhint{margin:0;font-size:12px;color:#a9a595;text-align:center;line-height:1.55;max-width:420px}
+@media(max-height:640px){.cvstage{width:min(66vw,300px)}}
 
 /* ---------- 今日动作卡 ---------- */
 .today{background:linear-gradient(150deg,#1f5a46,#14352a);border-radius:var(--r);padding:19px 21px;margin:0 0 24px;color:#fff;box-shadow:0 3px 16px rgba(0,0,0,.10)}
@@ -1152,12 +1176,16 @@ body:not(.lite-on) #lite{display:none !important}
 <li><b>满屏字</b>：纯色底 + 大字，没有脸 —— 适合金句类，涨粉快但没亲切感</li>
 <li><b>左字右脸</b>：脸占右半边 —— 有现场感，但字的空间小，字要大</li>
 </ul>
+<p class="note" style="margin:8px 0 0">下面任意一张点开，就能在这三种版式之间切；切换时「脸放这里」的虚线框会告诉你人该站哪。</p>
 </div>
 </div>
 
 <h3>24 条视频的封面文案（照着做就行）</h3>
 <p>下面每一张是一个可以直接套用的版式预览。字都控制在 8 个字以内。</p>
 <div class="covers" id="covers"></div>
+<p class="note">点任意一张 → 放大到 3:4，三种版式随手换；<b>截图中间那一块就是封面</b>（字占宽 80%，边缘约 5% 会被主页裁掉）。</p>
+
+
 <p class="note">做封面别用复杂模板。手机上的剪映 →「文字」→ 选一个粗黑体 → 字号拉到占宽 80% → 加 2px 黑描边。30 秒能做完一张。</p>
 </section>
 
@@ -1269,6 +1297,25 @@ body:not(.lite-on) #lite{display:none !important}
     <div class="tpzh" id="tptzh"></div>
   </div>
   <div class="tcnt" id="tpcnt">0%</div>
+</div>
+
+<div id="cvbig" class="no-print" aria-hidden="true">
+  <div class="cvbar">
+    <button class="pbtn" id="cvPrev">‹ 上一条</button>
+    <span class="cvno" id="cvNo">#01</span>
+    <button class="pbtn" id="cvNext">下一条 ›</button>
+    <button class="pbtn" id="cvClose">关闭</button>
+  </div>
+  <div class="cvseg" id="cvSeg">
+    <button class="pbtn on" data-v="full">满屏字</button>
+    <button class="pbtn" data-v="top">上字下图</button>
+    <button class="pbtn" data-v="left">左字右脸</button>
+  </div>
+  <div class="cvstage" id="cvStage" data-v="full">
+    <div class="cvband"><div class="cbtxt" id="cbTxt"></div><div class="cbsub" id="cbSub"></div></div>
+    <div class="cvface" id="cbFace">脸放这里</div>
+  </div>
+  <p class="cvhint" id="cvHint">截图中间这一块就是封面。3:4，字占宽 80%，边缘约 5% 会被主页裁掉。</p>
 </div>
 
 <script>
@@ -2864,10 +2911,72 @@ $("#drills").innerHTML = DRILLS.map(d => `
   </div>`).join("");
 
   const cv=$("#covers");
-  if(cv) cv.innerHTML = COVERS.map(x=>`<div class="cv">
+  if(cv) cv.innerHTML = COVERS.map((x,i)=>`<div class="cv" data-cv="${i}" role="button" tabindex="0" aria-label="放大第 ${x.n} 张封面：${x.txt}">
     <div class="art"><span>${x.txt}</span><em>#${String(x.n).padStart(2,"0")}</em></div>
-    <div class="cap"><b>${x.sub}</b></div>
+    <div class="cap"><b>${x.sub}</b><i>点开放大 →</i></div>
   </div>`).join("");
+})();
+
+/* ---------- 封面放大：点一张 → 3:4 满屏，可换版式、可翻页 ---------- */
+(function(){
+  const big=$("#cvbig"), stage=$("#cvStage"), t=$("#cbTxt"), sb=$("#cbSub"), no=$("#cvNo"), face=$("#cbFace");
+  const grid=$("#covers");
+  if(!big || !stage || !grid) return;
+  let cur=0, variant="full";
+  const FACE={full:"", top:"脸放这里（占下 60%）", left:"脸放这里（占右半边）"};
+  function fitText(){
+    const x=COVERS[cur]; if(!x) return;
+    const w=stage.clientWidth || 320;
+    const n=Math.max(1,[...String(x.txt)].length);
+    // 目标：一行字的宽度约占封面宽的 76%（左字右脸时只占窄栏）
+    const ratio=(variant==="left") ? 0.44 : 0.76;
+    const fs=Math.max(18, Math.min(56, Math.round(w*ratio/n)));
+    t.style.fontSize=fs+"px";
+  }
+  function paint(){
+    const x=COVERS[cur]; if(!x) return;
+    t.textContent=x.txt; sb.textContent=x.sub; no.textContent="#"+String(x.n).padStart(2,"0");
+    face.textContent=FACE[variant]||"";
+    stage.dataset.v=variant;
+    $$("#cvSeg .pbtn").forEach(b=>b.classList.toggle("on", b.dataset.v===variant));
+    fitText();
+  }
+  function open(i){
+    cur=Math.max(0, Math.min(COVERS.length-1, i|0));
+    big.classList.add("on"); big.setAttribute("aria-hidden","false");
+    document.body.style.overflow="hidden";
+    paint();
+    const c=$("#cvClose"); if(c && c.focus) c.focus();
+  }
+  function close(){
+    big.classList.remove("on"); big.setAttribute("aria-hidden","true");
+    document.body.style.overflow="";
+  }
+  window.openCover = open;
+  window.closeCover = close;
+  window.coverState = () => ({open:big.classList.contains("on"), i:cur, variant, txt:(COVERS[cur]||{}).txt});
+  grid.addEventListener("click", e=>{
+    const c=e.target.closest("[data-cv]"); if(!c) return;
+    open(parseInt(c.dataset.cv,10));
+  });
+  grid.addEventListener("keydown", e=>{
+    if(e.key!=="Enter" && e.key!==" ") return;
+    const c=e.target.closest("[data-cv]"); if(!c) return;
+    e.preventDefault(); open(parseInt(c.dataset.cv,10));
+  });
+  $("#cvSeg").addEventListener("click", e=>{
+    const b=e.target.closest("[data-v]"); if(!b) return;
+    variant=b.dataset.v; paint();
+  });
+  $("#cvPrev").addEventListener("click", ()=>{ cur=(cur-1+COVERS.length)%COVERS.length; paint(); });
+  $("#cvNext").addEventListener("click", ()=>{ cur=(cur+1)%COVERS.length; paint(); });
+  $("#cvClose").addEventListener("click", close);
+  document.addEventListener("keydown", e=>{
+    if(!big.classList.contains("on")) return;
+    if(e.key==="Escape") close();
+    else if(e.key==="ArrowLeft"){ cur=(cur-1+COVERS.length)%COVERS.length; paint(); }
+    else if(e.key==="ArrowRight"){ cur=(cur+1)%COVERS.length; paint(); }
+  });
 })();
 
 /* ---------- 练习计时器 ---------- */
@@ -3216,5 +3325,6 @@ $$("[data-copy]").forEach(b => b.onclick = () => {
   navigator.clipboard?.writeText(txt).then(()=>{ b.textContent="已复制"; setTimeout(()=>b.textContent="复制",1500); }).catch(()=>{});
 });
 </script>
+
 </body>
 </html>
