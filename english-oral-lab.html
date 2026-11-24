@@ -235,6 +235,11 @@ td b{color:var(--ink)}
 .errow .ed{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--ink3)}
 .errow .delbtn{width:30px;height:30px;flex:0 0 auto;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink3);font-size:15px;line-height:1;cursor:pointer}
 .errow .delbtn:hover{color:var(--red);border-color:var(--red)}
+.ratebox{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:10px;padding:2px 3px 2px 10px;background:var(--panel)}
+.ratebox .rl{font-size:11.5px;color:var(--ink3);font-family:var(--mono);margin-right:4px}
+.ratebox .rate{border:0;background:transparent;color:var(--ink2);font-family:var(--sans);font-size:12.5px;padding:7px 9px;border-radius:8px;cursor:pointer;min-height:32px;line-height:1.2}
+.ratebox .rate.on{background:var(--brand);color:#fff;font-weight:600}
+.ratebox .rate:hover:not(.on){color:var(--brand)}
 .dlink{border:0;background:var(--brand-soft);color:var(--brand);font-family:var(--sans);font-size:11.5px;
   padding:4px 8px;border-radius:20px;cursor:pointer;white-space:nowrap;min-height:26px}
 .dlink:hover{background:var(--brand);color:#fff}
@@ -875,6 +880,12 @@ body:not(.lite-on) #lite{display:none !important}
 <div class="btnrow" style="margin:0 0 18px">
   <button class="btn" id="allzh">显示 / 隐藏中文</button>
   <button class="btn" id="expandall">全部展开</button>
+  <span class="ratebox" id="ratebox" role="group" aria-label="参考音频速度">
+    <span class="rl">参考音频</span>
+    <button class="rate on" data-rate="1">1.0×</button>
+    <button class="rate" data-rate="0.75">0.75×</button>
+    <button class="rate" data-rate="0.5">0.5×</button>
+  </span>
 </div>
 <div class="slist" id="slists"></div>
 </section>
@@ -888,7 +899,7 @@ body:not(.lite-on) #lite{display:none !important}
 <h3>每天 3 分钟热身（固定顺序）</h3>
 <ol style="margin-bottom:0">
 <li><b>30 秒</b>：张嘴、活动舌头、打哈欠（真的，让口腔后部打开）</li>
-<li><b>60 秒</b>：读今天那组最小对立词，每对读三遍，第二遍故意夸张</li>
+<li><b>60 秒</b>：读今天那组最小对立词，每对读三遍，第二遍故意夸张（参考音频在 ③ 里可以调到 <b>0.75×</b>，跟读更跟得上）</li>
 <li><b>60 秒</b>：读一篇口播稿的前三句，只练语气，不管内容</li>
 <li><b>30 秒</b>：录音回听。只听一个点：哪个词自己都听不清</li>
 </ol>
@@ -2674,6 +2685,22 @@ window.audioBytes = audioBytes;
 
 function resetBtn(b){ if(!b) return; b.textContent=b.dataset.lab || b.textContent; b.classList.remove("on"); }
 
+// 参考音频倍速：跟读时先降到 0.75×，跟得上再回 1.0×
+let audioRate = Number(LS.get("rate", 1));
+if([1, 0.75, 0.5].indexOf(audioRate) < 0) audioRate = 1;
+window.audioRateState = () => audioRate;
+function paintRate(){
+  $$("#ratebox .rate").forEach(b => b.classList.toggle("on", Number(b.dataset.rate) === audioRate));
+}
+function setAudioRate(v){
+  const n = Number(v);
+  audioRate = [1, 0.75, 0.5].indexOf(n) >= 0 ? n : 1;
+  LS.set("rate", audioRate);
+  if(_au && _au.el){ try{ _au.el.playbackRate = audioRate; }catch(e){} }
+  paintRate();
+}
+window.setAudioRate = setAudioRate;
+
 function playAudio(n, btn){
   const u8 = audioBytes(n);
   if(!u8) return false;
@@ -2693,6 +2720,7 @@ function playAudio(n, btn){
     if(_au.url) URL.revokeObjectURL(_au.url);
     _au.url = URL.createObjectURL(new Blob([u8], {type:"audio/mp4"}));
     _au.el.src = _au.url;
+    try{ _au.el.playbackRate = audioRate; }catch(e){}
     _au.btn = btn || null;
     if(btn){
       if(!btn.dataset.lab) btn.dataset.lab = btn.textContent;
@@ -2970,6 +2998,18 @@ $("#drills").innerHTML = DRILLS.map(d => `
   updateAvg();
 })();
 
+
+/* ---------- 参考音频速度：绑定 ---------- */
+(function(){
+  const box = $("#ratebox");
+  if(!box) return;
+  paintRate();
+  box.addEventListener("click", e => {
+    const b = e.target.closest("[data-rate]");
+    if(!b) return;
+    setAudioRate(b.dataset.rate);
+  });
+})();
 
 /* ---------- 错音本 ---------- */
 (function(){
