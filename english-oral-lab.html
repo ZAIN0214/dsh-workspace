@@ -227,6 +227,15 @@ td b{color:var(--ink)}
   #tp .stage{padding:20px 18px 80px}
 }
 
+/* ---------- 错音本 ---------- */
+.errow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line2);font-size:13.5px}
+.errow:last-child{border-bottom:0}
+.errow b{font-family:var(--serif);font-size:15px}
+.errow .arr{color:var(--ink2)}
+.errow .ed{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--ink3)}
+.errow .delbtn{width:30px;height:30px;flex:0 0 auto;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink3);font-size:15px;line-height:1;cursor:pointer}
+.errow .delbtn:hover{color:var(--red);border-color:var(--red)}
+
 /* ---------- misc ---------- */
 .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13.5px;margin:10px 0}
 .kv dt{color:var(--ink3);font-family:var(--mono);font-size:11.5px;padding-top:3px}
@@ -868,7 +877,7 @@ body:not(.lite-on) #lite{display:none !important}
 <!-- ============ P4 ============ -->
 <section class="panel" id="p4">
 <h2>发音：先修 7 个洞，别贪多</h2>
-<p class="lead">你听起来「怪」，多半不是单词读错，而是这六件事。每组每天练 3 分钟，七组轮一周。<b>用手机录音，录完自己听</b>——不听录音的练习等于没练。</p>
+<p class="lead">你听起来「怪」，多半不是单词读错，而是这七件事。每组每天练 3 分钟，七组轮一周。<b>用手机录音，录完自己听</b>——不听录音的练习等于没练。</p>
 
 <div class="card accent">
 <h3>每天 3 分钟热身（固定顺序）</h3>
@@ -929,6 +938,21 @@ body:not(.lite-on) #lite{display:none !important}
 <li><b>隔一天再来</b>：看还在不在</li>
 </ol>
 <p class="note" style="margin-bottom:0">第 5 遍才算数。当天读对说明不了什么，第二天还能读对，才是真改过来了。</p>
+</div>
+
+<div class="sep"></div>
+<h2>错音本：把你老是错的词攒起来</h2>
+<p class="lead">一次自测只能抓一次错。把「我以为我说的是 / 识别成了什么」记下来，攒够十几条你会发现：<b>你其实只错那几个音</b>——那才是该集中打的靶子。</p>
+<div class="card">
+  <div class="dx">
+    <label>我以为我说的是<input id="wWord" maxlength="40" placeholder="例 think" autocomplete="off"></label>
+    <label>识别成（可不填）<input id="wHeard" maxlength="40" placeholder="例 sink" autocomplete="off"></label>
+  </div>
+  <div class="btnrow" style="margin-top:10px">
+    <button class="btn primary" id="wAdd">记一笔</button>
+    <button class="btn" id="wClear">清空全部</button>
+  </div>
+  <div id="wList" style="margin-top:12px"></div>
 </div>
 
 </section>
@@ -2941,6 +2965,62 @@ $("#drills").innerHTML = DRILLS.map(d => `
   updateAvg();
 })();
 
+
+/* ---------- 错音本 ---------- */
+(function(){
+  const word=$("#wWord"), heard=$("#wHeard"), list=$("#wList");
+  if(!word || !list) return;
+  const KEY="errlog";
+  let items = LS.get(KEY, []);
+  if(!Array.isArray(items)) items = [];
+  const escH = v => String(v==null?"":v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const norm = v => String(v==null?"":v).trim().toLowerCase();
+  const today = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+
+  function render(){
+    if(!items.length){
+      list.innerHTML = '<p class="note" style="margin:0">还没有记录。做一次 15 句发音诊断，把听错的词记进来。</p>';
+      return;
+    }
+    const cnt = {};
+    items.forEach(it => { const k=norm(it.w); if(k) cnt[k]=(cnt[k]||0)+1; });
+    const hot = Object.keys(cnt).filter(k=>cnt[k]>=2)
+      .sort((a,b)=>cnt[b]-cnt[a])
+      .map(k => escH((items.find(it=>norm(it.w)===k)||{}).w || k) + "×" + cnt[k]);
+    const rows = items.slice().reverse().map((it,i)=>{
+      const idx = items.length-1-i;
+      const arrow = it.h ? ' <span class="arr">→ ' + escH(it.h) + '</span>' : '';
+      return '<div class="errow"><b>' + escH(it.w) + '</b>' + arrow +
+        '<span class="ed">' + escH(it.d||"") + '</span>' +
+        '<button class="delbtn" data-del="' + idx + '" title="删掉这条">×</button></div>';
+    }).join("");
+    list.innerHTML = (hot.length ? '<p class="note" style="margin:0 0 10px">错 2 次以上的：<b>' + hot.join("、") + '</b> —— 先集中打这几个。</p>' : "") + rows;
+  }
+
+  function save(){ items = items.slice(-200); LS.set(KEY, items); render(); }
+
+  $("#wAdd").addEventListener("click", ()=>{
+    const w = String(word.value||"").trim();
+    if(!w){ word.focus(); return; }
+    items.push({w, h:String(heard.value||"").trim(), d:today()});
+    word.value = ""; heard.value = ""; word.focus();
+    save();
+  });
+  [word, heard].forEach(el => el.addEventListener("keydown", e => { if(e.key==="Enter") $("#wAdd").click(); }));
+  $("#wClear").addEventListener("click", ()=>{
+    if(!items.length) return;
+    if(confirm("清空全部 " + items.length + " 条错音记录？")){ items = []; save(); }
+  });
+  list.addEventListener("click", e => {
+    const b = e.target.closest("[data-del]");
+    if(!b) return;
+    const i = parseInt(b.dataset.del, 10);
+    if(isNaN(i) || i<0 || i>=items.length) return;
+    items.splice(i,1); save();
+  });
+  render();
+  window.errlogState = () => ({n: items.length, items: items.slice()});
+})();
 
 /* ---------- 数据诊断器 ---------- */
 (function(){
