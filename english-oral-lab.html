@@ -311,6 +311,9 @@ footer{text-align:center;padding:40px 16px 20px;color:var(--ink3);font-size:12px
   /* 纸面上不该出现可点的东西：日期选择器、今天按钮、输入框 */
   .tset,#tRow,input,select,textarea{display:none!important}
   .pc{border:1.5px solid #444;break-inside:avoid;margin:0}
+  /* 「打印这一页」只打自己那块：开拍卡 1 页、速查卡 2 页，不用一起打 3 页 */
+  body.print-pc .sheet{display:none!important}
+  body.print-sheet .pc{display:none!important}
   .pc-head{background:#1f5a46!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .ck:before{border-color:#444}
   .pc-sec h4{color:#1f5a46}
@@ -1111,7 +1114,7 @@ body:not(.lite-on) #lite{display:none !important}
 <h2 class="no-print">开拍卡 · 今晚就能发第一条</h2>
 <p class="lead no-print">前面六页都可以慢慢看，但这一页现在就打印出来（或截屏），贴在桌前。下面是全部能打印的内容。</p>
 <div class="btnrow no-print">
-  <button class="btn primary" onclick="window.print()">打印这一页</button>
+  <button class="btn primary" onclick="printOnly('pc')">打印这一页</button>
   <button class="btn" onclick="gotoTab('p3')">去看第 1 篇稿子</button>
 </div>
 
@@ -1185,7 +1188,7 @@ body:not(.lite-on) #lite{display:none !important}
 <h2 class="no-print">24 条速查卡 · 打印出来带到拍摄现场</h2>
 <p class="lead no-print">手机在拍，你总得有个地方看词——提词器在手机上，但手机就是摄像机，这两个没法同时用。这一页打印出来（或截屏存相册），放在镜头旁边。</p>
 <div class="btnrow no-print">
-  <button class="btn primary" onclick="window.print()">打印这一页</button>
+  <button class="btn primary" onclick="printOnly('sheet')">打印这一页</button>
   <button class="btn" onclick="gotoTab('p3')">想看完整稿</button>
 </div>
 <div class="sheet" id="sheet"></div>
@@ -2188,6 +2191,16 @@ const completionTarget = secs => {
   return Math.round(40 - (v - 20) * (15 / 40));
 };
 window.completionTarget = completionTarget;
+
+// 「打印这一页」：只打印当前点的那一块，不是整个面板
+window.printOnly = function(what){
+  const cls = 'print-' + what;
+  document.body.classList.add(cls);
+  const done = () => document.body.classList.remove(cls);
+  const finish = () => { setTimeout(done, 1200); };
+  if(window.addEventListener) window.addEventListener('afterprint', finish, {once:true});
+  setTimeout(() => { try{ window.print(); }catch(e){} finish(); }, 30);
+};
 
 const stress = t => String(t).replace(/\*([^*]+)\*/g, '<b class="str">$1</b>');
 const miniDur = s => (s && s.miniSecs) ? s.miniSecs : 12;
