@@ -830,17 +830,17 @@ body:not(.lite-on) #lite{display:none !important}
 <div class="tablewrap"><table>
 <tr><th>被认错的词</th><th>中途卡住</th><th>你从哪开始</th></tr>
 <tr><td><b>0–3 个</b></td><td>0–1 次</td><td><b>C 起点</b>：跳过 A 级，从第 5 篇（S5 平台期）起拍；第 1–4 篇当热身用，不一定要发</td></tr>
-<tr><td><b>4–8 个</b></td><td>2–3 次</td><td><b>B 起点</b>：按原排期走，Day 4 从第 1 篇开始，一天都不跳</td></tr>
+<tr><td><b>4–8 个</b></td><td>2–3 次</td><td><b>B 起点</b>：按原排期走，Day 1 从第 1 篇开始，一天都不跳</td></tr>
 <tr><td><b>≥9 个</b></td><td>≥4 次</td><td><b>A 起点</b>：先去 ④ 做 3 天发音热身（每天 3 分钟），第 4 天再拍。别急着发</td></tr>
 </table></div>
 <p class="note" style="margin-bottom:0">这个测的是「现在」，不是「你」。三周后再测一次，同一个测试会给你不一样的答案——那就是你口语进步的硬证据，比任何感觉都可靠。</p>
 </div>
 
 <h2>24 篇口播稿 · 60 天</h2>
-<p class="lead">按难度排好了：第 1 个月 12 条（Day 4–29，A/B 级），第 2 个月 12 条（Day 32–59，B/C 级）。每条都有：开场钩子、<b>极简版 4 句（十几秒）</b>、英文全文（<span class="cut">/</span> 是停顿点）、逐句中译、难词音标、拍摄提示。</p>
+<p class="lead">按难度排好了：第 1 个月 12 条（Day 1–29，A/B 级），第 2 个月 12 条（Day 32–59，B/C 级）。每条都有：开场钩子、<b>极简版 4 句（十几秒）</b>、英文全文（<span class="cut">/</span> 是停顿点）、逐句中译、难词音标、拍摄提示。</p>
 <div class="pillars" id="sfilter">
   <button class="pbtn on" data-m="all">全部 24 篇</button>
-  <button class="pbtn" data-m="m1">第 1 个月 · 起号（Day 4–29）</button>
+  <button class="pbtn" data-m="m1">第 1 个月 · 起号（Day 1–29）</button>
   <button class="pbtn" data-m="m2">第 2 个月 · 定型与放大（Day 32–59）</button>
 </div>
 <div class="btnrow" style="margin:0 0 18px">
@@ -1206,7 +1206,7 @@ body:not(.lite-on) #lite{display:none !important}
 <script>
 /* ================= 数据 ================= */
 const SCRIPTS = [
-{n:1, day:"Day 4", lvl:"A", secs:28, miniSecs:10, mini:[0,1,4,9],ms:["Motivation is a *liar*.","It *shows up* on day one, / and *disappears* on day four.","I'm a *student athlete*.","Just *show up*."],
+{n:1, day:"Day 1", lvl:"A", secs:28, miniSecs:10, mini:[0,1,4,9],ms:["Motivation is a *liar*.","It *shows up* on day one, / and *disappears* on day four.","I'm a *student athlete*.","Just *show up*."],
  en:"Discipline is not motivation", zh:"自律不是动力",
  hook:{en:"Motivation is a liar.", zh:"动力是个骗子。"},
  lines:[
@@ -2223,6 +2223,9 @@ $$(".tab").forEach(t => t.addEventListener("click", () => gotoTab(t.dataset.p)))
       acts:[["打开这篇稿子","script:"+(byDay.n-1)],["直接看提词器","script:"+(byDay.n-1)]]};
     if(n===30) return {task:"第 30 天：做复盘，把第 31 天三个决定定下来",
       sub:"抄下数据最好的那条结构。只改结构，不改方向。", acts:[["去复盘","tab:p5"]]};
+    if(n===60) return {task:"第 60 天：把第 1 条和第 24 条的录音并排放",
+      sub:"两段摆在一起听，你会第一次真的听见自己变了。听完再决定第 3 个月往哪走。",
+      acts:[["看 60 天记录","tab:p5"],["听第 24 条","script:23"]]};
     if(n>60) return {task:"60 天跑完了，回去听第一天那条录音",
       sub:"两个录音并排放，你会第一次真的听见自己变了。然后开第 3 个月。",
       acts:[["看 60 天记录","tab:p5"]]};
