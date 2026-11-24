@@ -751,7 +751,7 @@ body:not(.lite-on) #lite{display:none !important}
 <li>英文句 + 中文翻译，<b>中文在下、英文在上</b>，或者只放中文。别只放英文。</li>
 <li>字号要大到<b>手机竖屏不放大也看得清</b>，一行不超过 12 个汉字。</li>
 <li>关键词做颜色标记（比如 <span class="mark">discipline</span>），观众的眼睛需要落脚点。</li>
-<li><b>不用手打</b>：每篇稿子下面都有「复制双语字幕」，复制出来就是「英文一行、中文一行、空行分隔」，粘进剪映后一句一条，只调时间轴。</li>
+<li><b>不用手打</b>：每篇稿子下面有「复制双语字幕」（英文一行、中文一行、空行分隔），也有<b>带时间轴的 .srt 文件</b>——剪映「文本 → 导入字幕」直接认，一句一条不用对轴。极简版也有一份 4 句的。</li>
 </ul>
 </div>
 
@@ -1256,7 +1256,7 @@ body:not(.lite-on) #lite{display:none !important}
       <div class="pc-step"><span class="tm">0–3 分</span><span class="sd">出声读稿 <b>5 遍</b>，不背。卡住就停下来看一眼，继续读</span></div>
       <div class="pc-step"><span class="tm">3–5 分</span><span class="sd">录 10 秒测试，回放听音量。太小就往前挪半步</span></div>
       <div class="pc-step"><span class="tm">5–12 分</span><span class="sd">拍 <b>3 遍</b>：第 1 遍找状态，第 2 遍正常，第 3 遍放开。<b>只拍 3 遍</b></span></div>
-      <div class="pc-step"><span class="tm">12–15 分</span><span class="sd">选最好的那遍，剪辑只做三件事：剪首尾、加中文字幕、加片头字卡。然后<b>发</b></span></div>
+      <div class="pc-step"><span class="tm">12–15 分</span><span class="sd">选最好的那遍，剪辑只做三件事：剪首尾、<b>导入 .srt 字幕</b>（没有就加中文字幕）、加片头字卡。然后<b>发</b></span></div>
       <div class="rule">🔴 <b>15 分钟一到就发。</b>超时说明稿子太长，下次砍掉三分之一，不要重拍。<br>第 1 条的目标不是「好」，是<b>存在</b>。<br><br>📉 <b>如果整篇稿子拍三遍都不顺</b>：直接切到稿子里那块绿色的「<b>极简版</b>」，用它的提词器拍。四句话、十几秒，也是一条完整的视频，而且完播率更高。</div>
     </div>
 
@@ -2599,6 +2599,7 @@ $$(".tab").forEach(t => t.addEventListener("click", () => gotoTab(t.dataset.p)))
             <button class="btn" data-audio="${s.n}">听一遍参考音频</button>
             <button class="btn primary" data-tpm="${idx}">用极简版提词器</button>
             <button class="btn" data-cpsm="${idx}" title="英文一行、中文一行，空行分隔；粘进剪映就能一句对一句">复制双语字幕</button>
+            <button class="btn" data-srt="${idx}" data-mini="1" title="带时间轴的字幕文件，剪映左下角「文本 → 导入字幕」直接用">下载 .srt（极简版）</button>
           </div>
         </div>
         <div class="sect-lab">英文全文 · / 是停顿点</div>
@@ -2617,6 +2618,7 @@ $$(".tab").forEach(t => t.addEventListener("click", () => gotoTab(t.dataset.p)))
           <button class="btn" data-zh="${idx}">中文开关</button>
           <button class="btn" data-cp="${idx}">复制英文</button>
           <button class="btn" data-cps="${idx}" title="英文一行、中文一行，空行分隔；粘进剪映就能一句对一句">复制双语字幕</button>
+          <button class="btn" data-srt="${idx}" title="带时间轴的字幕文件，剪映左下角「文本 → 导入字幕」直接用">下载 .srt</button>
         </div>
       </div>
     </div>`;
@@ -2649,6 +2651,72 @@ $$(".tab").forEach(t => t.addEventListener("click", () => gotoTab(t.dataset.p)))
     return txt;
   }
   window.copySubs = copySubs;
+
+  // 带时间轴的字幕文件（.srt）：剪映「文本 → 导入字幕」直接认，一句一条不用手动对轴
+  function srtIdx(i, mini){
+    const s = SCRIPTS[i];
+    return (mini && (s.mini||[]).length) ? s.mini.slice() : s.lines.map((_,k)=>k);
+  }
+  function srtTimes(i, mini){
+    const s = SCRIPTS[i];
+    const idxs = srtIdx(i, mini);
+    const total = mini ? miniDur(s) : s.secs;
+    const ws = idxs.map(k => Math.max(1, s.lines[k].en.replace(/\//g," ").split(/\s+/).filter(Boolean).length));
+    const sum = ws.reduce((a,b)=>a+b,0);
+    const lead = 0.25, gap = 0.12;
+    const usable = Math.max(2, total - lead - gap*(idxs.length-1));
+    let t = lead;
+    return idxs.map((k,j)=>{
+      const d = usable * ws[j] / sum;
+      const rec = [t, t+d, k];
+      t += d + gap;
+      return rec;
+    });
+  }
+  const srtStamp = sec => {
+    const ms = Math.max(0, Math.round(sec*1000));
+    const h = Math.floor(ms/3600000), m = Math.floor(ms%3600000/60000), ss = Math.floor(ms%60000/1000), r = ms%1000;
+    return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(ss).padStart(2,"0")+","+String(r).padStart(3,"0");
+  };
+  function srtFor(i, mini){
+    const s = SCRIPTS[i];
+    const rows = srtTimes(i, mini);
+    return rows.map((r,j)=>{
+      const en = s.lines[r[2]].en.replace(/ \/ /g," ").replace(/\*/g,"").replace(/\s+/g," ").trim();
+      const zh = s.lines[r[2]].zh.replace(/\s+/g," ").trim();
+      return (j+1)+"\n"+srtStamp(r[0])+" --> "+srtStamp(r[1])+"\n"+en+"\n"+zh+"\n";
+    }).join("\n");
+  }
+  function srtName(i, mini){
+    const s = SCRIPTS[i];
+    return String(s.n).padStart(2,"0")+"-"+s.zh+"-"+(mini ? "极简版" : "完整版")+".srt";
+  }
+  function downloadText(name, text){
+    try{
+      const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = name; a.rel = "noopener";
+      document.body.appendChild(a); a.click();
+      setTimeout(()=>{ try{ document.body.removeChild(a); URL.revokeObjectURL(url); }catch(e){} }, 1500);
+      return true;
+    }catch(e){ return false; }
+  }
+  function saveSrt(i, mini, btn){
+    const txt = srtFor(i, mini), name = srtName(i, mini);
+    window.__lastSrt = {name:name, len:txt.length, cues:(txt.match(/ --> /g)||[]).length};
+    const good = downloadText(name, txt);
+    if(btn){
+      const back = btn.textContent;
+      btn.textContent = good ? "已下载" : "浏览器拦了，用下面的复制";
+      setTimeout(()=>{ btn.textContent = back; }, 1800);
+    }
+    return good;
+  }
+  window.srtFor = srtFor;
+  window.srtName = srtName;
+  window.srtTimes = srtTimes;
+  window.saveSrt = saveSrt;
 
   let zhOn = LS.get("zh", true);
 
@@ -2685,6 +2753,8 @@ $$(".tab").forEach(t => t.addEventListener("click", () => gotoTab(t.dataset.p)))
       navigator.clipboard?.writeText(txt).then(()=>{ cpz.textContent="已复制"; setTimeout(()=>cpz.textContent="复制",1500); }).catch(()=>{});
       return;
     }
+    const srt = e.target.closest("[data-srt]");
+    if(srt){ saveSrt(+srt.dataset.srt, srt.dataset.mini === "1", srt); return; }
     const cpsm = e.target.closest("[data-cpsm]");
     if(cpsm){ copySubs(+cpsm.dataset.cpsm, true, cpsm); return; }
     const cps = e.target.closest("[data-cps]");
