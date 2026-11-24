@@ -531,7 +531,7 @@ body:not(.lite-on) #lite{display:none !important}
     </span>
     <span class="lite-speed-hint">跟不上就先 0.75×，顺了再回 1.0×</span>
   </div>
-  <p class="lite-tip">先听两遍，再跟着念三遍，最后开提词器拍。<b>这是机器音</b>——只学它的音准和停顿，语气按你自己的来，别学它那个平。</p>
+  <p class="lite-tip" id="liteTip">先听两遍，再跟着念三遍，最后开提词器拍。<b>这是机器音</b>——只学它的音准和停顿，语气按你自己的来，别学它那个平。</p>
   <div class="lite-foot">
     <button class="lite-link" id="liteMore">展开完整工作台（7 页）</button>
     <details class="firstrun">
@@ -1001,6 +1001,7 @@ body:not(.lite-on) #lite{display:none !important}
 <tr><td><b>定型</b></td><td>31–45</td><td>找到可复制的结构</td><td>用最好的那条结构做 <b>6 条</b>；其中 1 条播放高于你中位数的 3 倍</td><td>第 13–18 条：全部 B 级，50–58 秒，同结构复刻</td></tr>
 <tr><td><b>放大</b></td><td>46–60</td><td>让陌生人留下来</td><td>主页封面一眼看出是同一个号；3 条播放 &gt;500；涨粉 &gt;50</td><td>第 19–24 条：全部 C 级，60–70 秒，做成系列</td></tr>
 </table></div>
+<p class="note">60 天里有 <b>11 天标着「回炉」</b>（第 4、9、14、19、24、31、36、41、46、51、56 天）：那天不拍新稿，把更早那篇<b>不写稿说 40 秒</b>，说完再打开原稿对一遍。新稿让你敢拍，回炉让你真的说熟——这 11 天别跳。</p>
 
 <div class="card warn">
 <h3>第 31 天的三个决定（必须当天定下来，之后不再改）</h3>
@@ -2293,32 +2294,49 @@ $$(".tab").forEach(t => t.addEventListener("click", () => gotoTab(t.dataset.p)))
     return Math.floor((b-a)/MS)+1;
   }
 
+  /* 回炉日：不拍新稿，把更早那篇不看稿说 40 秒。
+     11 个日子刻意避开全部拍摄日；目标按「最早还没回炉过的那篇」往前走。 */
+  const REVIEW_DAYS = [4,9,14,19,24,31,36,41,46,51,56];
+  const shotDay = x => parseInt(String(x.day).replace(/[^0-9]/g,""),10);
+  function reviewTarget(n){
+    const k = REVIEW_DAYS.indexOf(n);
+    if(k < 0) return null;
+    const shot = SCRIPTS.filter(x=>shotDay(x) < n).sort((a,b)=>a.n-b.n);
+    if(!shot.length) return null;
+    return shot[Math.min(k, shot.length-1)];
+  }
+
   function plan(n){
-    if(n===null) return {task:"开始日期填得不对，重选一个", sub:"", acts:[]};
-    if(n<1) return {task:"还没到开始日期", sub:"到了那天再来，这里会告诉你只做哪一件事。", acts:[]};
-    const byDay = SCRIPTS.find(x=>parseInt(String(x.day).replace(/[^0-9]/g,""),10)===n);
-    if(n===1) return {task:"拍第 1 条，发出去",
+    if(n===null) return {kind:"none", task:"开始日期填得不对，重选一个", sub:"", acts:[]};
+    if(n<1) return {kind:"none", task:"还没到开始日期", sub:"到了那天再来，这里会告诉你只做哪一件事。", acts:[]};
+    const byDay = SCRIPTS.find(x=>shotDay(x)===n);
+    if(n===1) return {kind:"shoot", task:"拍第 1 条，发出去",
       sub:"15 分钟。稿子《Discipline is not motivation》，58 词。今晚的目标不是好，是存在。",
       acts:[["打开第 1 篇稿子","script:0"],["我是新手，去开拍卡","tab:p6"]]};
-    if(n===2) return {task:"回听第 1 条 + 做一次 15 句发音诊断",
+    if(n===2) return {kind:"special", task:"回听第 1 条 + 做一次 15 句发音诊断",
       sub:"录一段，用手机听写看它认错几个词。圈出 3 个最该改的音，别全改。",
       acts:[["做发音诊断","tab:p4"],["去打卡","tab:p5"]]};
-    if(n===3) return {task:"3 分钟发音热身，再把第 1 篇读 5 遍",
+    if(n===3) return {kind:"special", focus:1, task:"3 分钟发音热身，再把第 1 篇读 5 遍",
       sub:"今天不拍新的。只做输入和嘴部热身，明天再上机。", acts:[["去发音页","tab:p4"]]};
-    if(byDay) return {task:`拍第 ${byDay.n} 条：${byDay.zh}`,
+    if(byDay) return {kind:"shoot", task:`拍第 ${byDay.n} 条：${byDay.zh}`,
       sub:`${byDay.day}、${byDay.secs} 秒、${byDay.lvl} 级。先出声读 5 遍再开拍，别背。`,
       acts:[["打开这篇稿子","script:"+(byDay.n-1)],["直接看提词器","script:"+(byDay.n-1)]]};
-    if(n===30) return {task:"第 30 天：做复盘，把第 31 天三个决定定下来",
+    if(n===30) return {kind:"special", task:"第 30 天：做复盘，把第 31 天三个决定定下来",
       sub:"抄下数据最好的那条结构。只改结构，不改方向。", acts:[["去复盘","tab:p5"]]};
-    if(n===60) return {task:"第 60 天：把第 1 条和第 24 条的录音并排放",
+    if(n===60) return {kind:"special", task:"第 60 天：把第 1 条和第 24 条的录音并排放",
       sub:"两段摆在一起听，你会第一次真的听见自己变了。听完再决定第 3 个月往哪走。",
       acts:[["看 60 天记录","tab:p5"],["听第 24 条","script:23"]]};
-    if(n>60) return {task:"60 天跑完了，回去听第一天那条录音",
+    if(n>60) return {kind:"special", task:"60 天跑完了，回去听第一天那条录音",
       sub:"两个录音并排放，你会第一次真的听见自己变了。然后开第 3 个月。",
       acts:[["看 60 天记录","tab:p5"]]};
-    const nx = SCRIPTS.filter(x=>parseInt(String(x.day).replace(/[^0-9]/g,""),10)>n).sort((a,b)=>a.n-b.n)[0];
+    const rv = reviewTarget(n);
+    if(rv) return {kind:"review", review:rv,
+      task:`回炉第 ${rv.n} 篇：不写稿，说 40 秒`,
+      sub:`今天不拍新的。第 ${rv.n} 篇《${rv.zh}》是 ${rv.day} 拍的：只看着这四句骨架，不看稿说 40 秒，把自己的细节加进去；说完再打开原文对一遍。`,
+      acts:[["打开第 "+rv.n+" 篇","script:"+(rv.n-1)],["去打卡","tab:p5"]]};
+    const nx = SCRIPTS.filter(x=>shotDay(x)>n).sort((a,b)=>a.n-b.n)[0];
     const stage = n<=30 ? "" : (n<=45 ? "（定型期：同一个结构，只换事件）" : "（放大期：时长可以放到 60 秒以上）");
-    return {task:"今天不用拍。把下一条稿子读 5 遍",
+    return {kind:"read", task:"今天不用拍。把下一条稿子读 5 遍",
       sub: (nx ? `下一条是第 ${nx.n} 条《${nx.zh}》（${nx.day}）。读熟比背下来重要。` : "") + stage,
       acts: nx ? [["打开下一篇","script:"+(nx.n-1)]] : []};
   }
@@ -2337,9 +2355,10 @@ $$(".tab").forEach(t => t.addEventListener("click", () => gotoTab(t.dataset.p)))
   }
 
   function paintLite(n,p){
-    const i = scriptIdxFor(n), s = SCRIPTS[i];
-    const firstAct = (p.acts && p.acts[0]) ? String(p.acts[0][1]) : "";
-    const isToday = firstAct.indexOf("script:") === 0;
+    const kind = p.kind || "read";
+    const rv = p.review || null;
+    const i = (kind==="review" && rv) ? (rv.n-1) : (p.focus ? p.focus-1 : scriptIdxFor(n));
+    const s = SCRIPTS[i];
     const lines = s.mini || [0];
     const words = lines.map(k=>s.lines[k].en.replace(/ \/ /g," ").trim().split(/\s+/).length).reduce((a,b)=>a+b,0);
     window.__liteIdx = i;
@@ -2350,17 +2369,23 @@ $$(".tab").forEach(t => t.addEventListener("click", () => gotoTab(t.dataset.p)))
     const secs = (s.miniSecs || Math.round(words/2));
     const sb=$("#liteSub");
     if(sb){
-      sb.textContent = isToday
-        ? `今晚就拍这四句，约 ${secs} 秒。想拍完整版（${s.secs} 秒）就展开工作台。`
-        : `今天不拍。先把第 ${s.n} 篇这四句读顺，明天再上机。`;
+      sb.textContent =
+        kind==="shoot"   ? `今晚就拍这四句，约 ${secs} 秒。想拍完整版（${s.secs} 秒）就展开工作台。` :
+        kind==="review"  ? (p.sub || `今天不拍新的。第 ${s.n} 篇不写稿说 40 秒，说完再打开对一遍。`) :
+        kind==="read"    ? `今天不拍。先把第 ${s.n} 篇这四句读顺，明天再上机。` :
+                           (/^今天不拍/.test(p.sub||"") ? p.sub : "今天不拍新的。"+(p.sub||"先把上面这件事做完再关页面。"));
       sb.style.display = "";
     }
     const tpBtn=$("#liteTp");
-    if(tpBtn) tpBtn.textContent = `打开提词器 · ${secs} 秒`;
+    if(tpBtn) tpBtn.textContent = kind==="review" ? `对一遍原稿 · ${secs} 秒` : `打开提词器 · ${secs} 秒`;
+    const tipEl=$("#liteTip");
+    if(tipEl) tipEl.innerHTML = kind==="review"
+      ? '先听两遍，然后<b>关掉屏幕</b>、不看稿说 40 秒，最后打开原稿对一遍。<b>这是机器音</b>——只学它的音准和停顿，<b>别学</b>它那个平。'
+      : '先听两遍，再跟着念三遍，最后开提词器拍。<b>这是机器音</b>——只学它的音准和停顿，语气按你自己的来，别学它那个平。';
     const ul=$("#liteLines"); if(ul) ul.innerHTML = lines.map((k,i)=>`<li>${stress(cut((s.ms||[])[i] || s.lines[k].en))}</li>`).join("");
     const mt=$("#liteMeta");
     if(mt) mt.textContent = `第 ${s.n} 篇《${s.zh}》 · ${lines.length} 句 · 约 ${secs} 秒` +
-      (isToday ? "" : "（先熟悉，不一定要发）");
+      (kind==="shoot" ? "" : (kind==="review" ? "（回炉：先不看稿，说完再对）" : "（先熟悉，不一定要发）"));
     const dn=$("#liteDone"); if(dn){ dn.textContent="今天做完了"; dn.disabled=false; }
   }
 
