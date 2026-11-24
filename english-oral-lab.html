@@ -298,6 +298,8 @@ footer{text-align:center;padding:40px 16px 20px;color:var(--ink3);font-size:12px
   section.panel{display:none!important}
   section.panel.on{display:block!important;animation:none!important}
   .wrap{max-width:none;padding:0}
+  /* 纸面上不该出现可点的东西：日期选择器、今天按钮、输入框 */
+  .tset,#tRow,input,select,textarea{display:none!important}
   .pc{border:1.5px solid #444;break-inside:avoid;margin:0}
   .pc-head{background:#1f5a46!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .ck:before{border-color:#444}
