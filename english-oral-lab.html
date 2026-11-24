@@ -584,6 +584,7 @@ body:not(.lite-on) #lite{display:none !important}
   <div class="lite-acts">
     <button class="btn primary" id="litePlay">▶ 听一遍</button>
     <button class="btn" id="liteTp">看提词器</button>
+    <button class="btn" id="liteCopy" title="四句英文，一行一句——直接粘进剪映的提词器">复制四句</button>
     <button class="btn" id="liteDone">今天做完了</button>
   </div>
   <div class="lite-speed">
@@ -1244,7 +1245,7 @@ body:not(.lite-on) #lite{display:none !important}
 <ol style="margin:0 0 10px">
 <li>剪映首页 → <b>提词拍摄</b>（有的版本在「拍摄」里的 <b>提词器</b> 图标）</li>
 <li>选 <b>悬浮提词</b>（免费功能，不需要会员）→ 新建台本</li>
-<li>把这一条的 <b>极简版四句</b> 粘进去——今晚那四句在下面，直接抄；以后换稿就去 ③ 点「复制英文」</li>
+<li>回到单页点 <b>「复制四句」</b>，粘进提词器（四句英文一行一句，剪映里滚动刚刚好）</li>
 <li>调<b>字号</b>（大一点）和<b>滚动速度</b>（比平时说话慢一点），然后开拍</li>
 </ol>
 <p class="note" id="sp4note" style="margin:0 0 10px">今晚这四句（粘进提词器就是一行一句）：<b id="sp4"></b></p>
@@ -2559,6 +2560,15 @@ $$(".tab").forEach(t => t.addEventListener("click", () => gotoTab(t.dataset.p)))
   if(liteTp) liteTp.addEventListener("click",()=>{ if(window.__liteIdx>=0) openTP(window.__liteIdx, true); });
   const litePlay = $("#litePlay");
   if(litePlay) litePlay.addEventListener("click",e=>{ if(window.__liteIdx>=0) playAudio(window.__liteIdx+1, e.currentTarget); });
+  const liteCopy = $("#liteCopy");
+  if(liteCopy) liteCopy.addEventListener("click", ()=>{
+    const i = window.__liteIdx;
+    const s = SCRIPTS[i]; if(!s) return;
+    const txt = (s.mini || []).map(k => s.lines[k].en.replace(/ \/ /g," ").replace(/\*/g,"").replace(/\s+/g," ").trim()).join("\n");
+    if(window.copyTo) window.copyTo(txt, liteCopy, "复制四句");
+    else if(navigator.clipboard) navigator.clipboard.writeText(txt).catch(()=>{});
+  });
+
   const liteDone = $("#liteDone");
   if(liteDone) liteDone.addEventListener("click",e=>{
     const n=window.__todayN;
@@ -2681,6 +2691,7 @@ $$(".tab").forEach(t => t.addEventListener("click", () => gotoTab(t.dataset.p)))
     return txt;
   }
   window.copySubs = copySubs;
+  window.copyTo = copyTo;
 
   // 带时间轴的字幕文件（.srt）：剪映「文本 → 导入字幕」直接认，一句一条不用手动对轴
   function srtIdx(i, mini){
