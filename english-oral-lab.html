@@ -1236,6 +1236,19 @@ body:not(.lite-on) #lite{display:none !important}
   <button class="btn" onclick="gotoTab('p3')">去看第 1 篇稿子</button>
 </div>
 
+<div class="card no-print" id="singlePhone">
+<h3>只有一台手机、也没打印机？用剪映自带的提词器拍</h3>
+<p style="margin:0 0 10px">提词器浮在相机画面上，一边看词一边录，眼睛不会离开镜头——不用买双屏提词器，也不用背稿。</p>
+<ol style="margin:0 0 10px">
+<li>剪映首页 → <b>提词拍摄</b>（有的版本在「拍摄」里的 <b>提词器</b> 图标）</li>
+<li>选 <b>悬浮提词</b>（免费功能，不需要会员）→ 新建台本</li>
+<li>把这一条的 <b>极简版四句</b> 粘进去——今晚那四句在下面，直接抄；以后换稿就去 ③ 点「复制英文」</li>
+<li>调<b>字号</b>（大一点）和<b>滚动速度</b>（比平时说话慢一点），然后开拍</li>
+</ol>
+<p class="note" id="sp4note" style="margin:0 0 10px">今晚这四句（粘进提词器就是一行一句）：<b id="sp4"></b></p>
+<p class="note" style="margin:0">三个备选：<b>①</b> 打印速查卡贴在镜头旁；<b>②</b> 第二台设备（旧手机/平板/电脑）开着 ③ 的提词器；<b>③</b> 四句很短，直接背下来——第 1 条只有 22 个词。</p>
+</div>
+
 <div class="pc">
   <div class="pc-head">
     <div class="t">第一条视频 · 15 分钟开拍</div>
@@ -3042,6 +3055,10 @@ $("#drills").innerHTML = DRILLS.map(d => `
   </div>`).join("");
 
   // 发布排期表：24 行，封面大字 + 发布标题直接来自数据，后面五格留白给手写
+  // 单机提词卡里的「今晚四句」也从数据来，别手抄
+  const sp4=$("#sp4");
+  if(sp4) sp4.innerHTML = SCRIPTS[0].mini.map(k=>SCRIPTS[0].lines[k].en.replace(/ \/ /g," ").replace(/\*/g,"").trim()).join("<br>");
+
   const sc=$("#schedTab tbody");
   if(sc) sc.innerHTML = SCRIPTS.map(x=>{
     const cv=COVERS.find(y=>y.n===x.n)||{};
