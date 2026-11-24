@@ -3259,7 +3259,7 @@ $("#drills").innerHTML = DRILLS.map(d => `
       <div>
         <div class="lt">${s.en} <span style="color:var(--ink3);font-size:12px">· ${s.day} · ${s.secs}s</span></div>
         <div class="fieldrow">
-          <label class="field">完播 <input data-k="${s.n}.finish" placeholder="%" inputmode="numeric"></label>
+          <label class="field">完播 <input data-k="${s.n}.finish" type="number" min="0" max="100" placeholder="%" inputmode="numeric"></label>
           <label class="field">发音自评
             <select data-k="${s.n}.pron">
               <option value="">-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
@@ -3283,9 +3283,16 @@ $("#drills").innerHTML = DRILLS.map(d => `
 
   function updateAvg(){
     // 每条的达标线按它自己的片长算（28 秒要 37%，64 秒只要 25%），不能一刀切
+    // 完播率只能是 0–100。填成 300 这种（多打了位/按了两次）不能拿去平均，
+    // 否则均值虚高，会把「其实没过线」的结论盖掉。
+    const badFinish = [];
     const rows = SCRIPTS.map(s=>{
-      const v = parseFloat(logs[s.n+".finish"]);
-      return isNaN(v) ? null : {s, v, t: completionTarget(s.secs)};
+      const raw = logs[s.n+".finish"];
+      if(raw===undefined || raw==="") return null;
+      const v = parseFloat(raw);
+      if(isNaN(v)) return null;
+      if(v<0 || v>100){ badFinish.push({n:s.n, v:raw}); return null; }
+      return {s, v, t: completionTarget(s.secs)};
     }).filter(Boolean);
     const pr = SCRIPTS.map(s=>parseFloat(logs[s.n+".pron"])).filter(v=>!isNaN(v));
     const a = rows.length ? (rows.reduce((x,y)=>x+y.v,0)/rows.length).toFixed(1) : "—";
@@ -3307,7 +3314,9 @@ $("#drills").innerHTML = DRILLS.map(d => `
       `发音自评 <span class="ring">${b} / 5</span>
       <div class="hint" style="margin-top:6px">${hint}${
         rows.length ? `（达标线按每条自己的片长算，你这几条的平均线是 ${avgT}%）` : ""
-      }</div>`;
+      }${badFinish.length
+        ? `<br><b>有 ${badFinish.length} 条的完播率填得不像百分比</b>：${badFinish.slice(0,5).map(x=>"第 "+x.n+" 条填了 "+x.v).join("、")}${badFinish.length>5?" 等":""}——先改成 0–100 的数，统计里暂时没算它们。`
+        : ""}</div>`;
   }
   updateAvg();
 })();
