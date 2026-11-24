@@ -166,6 +166,8 @@ td b{color:var(--ink)}
 .btn{border:1px solid var(--line);background:var(--panel);color:var(--ink2);font-family:var(--sans);font-size:13px;padding:8px 14px;border-radius:8px;cursor:pointer;transition:.15s;font-weight:500;min-height:40px;display:inline-flex;align-items:center;justify-content:center;line-height:1.25}
 .btn:hover{border-color:var(--brand);color:var(--brand)}
 .btn.primary{background:var(--brand);border-color:var(--brand);color:var(--onbrand)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn:disabled:hover{border-color:var(--line);color:var(--ink2)}
 .btn.primary:hover{opacity:.9;color:var(--onbrand)}
 .btn.on{background:var(--brand-soft);border-color:var(--brand);color:var(--brand)}
 
@@ -2501,7 +2503,20 @@ $$(".tab").forEach(t => t.addEventListener("click", () => gotoTab(t.dataset.p)))
     const mt=$("#liteMeta");
     if(mt) mt.textContent = `第 ${s.n} 篇《${s.zh}》 · ${lines.length} 句 · 约 ${secs} 秒` +
       (kind==="shoot" ? "" : (kind==="review" ? "（回炉：先不看稿，说完再对）" : "（先熟悉，不一定要发）"));
-    const dn=$("#liteDone"); if(dn){ dn.textContent="今天做完了"; dn.disabled=false; }
+    const dn=$("#liteDone");
+    if(dn){
+      const isDone = (n>=1 && Array.isArray(LS.get("days",[])) && LS.get("days",[]).indexOf(n)>=0);
+      dn.textContent = isDone ? "已打卡 ✓（今天完成了）" : "今天做完了";
+      dn.disabled = !!isDone;
+      if(isDone && sb) sb.textContent = "今天已经打卡了。" + nextHint(n);
+    }
+  }
+
+  // 打完卡之后屏幕上还该留一句「明天做什么」，不然第二天打开会忘了
+  function nextHint(n){
+    if(!(n>=1)) return "";
+    const p = plan(n+1);
+    return (p && p.task) ? ("明天：" + p.task + "。") : "";
   }
 
   function paint(){
@@ -2548,8 +2563,10 @@ $$(".tab").forEach(t => t.addEventListener("click", () => gotoTab(t.dataset.p)))
   if(liteDone) liteDone.addEventListener("click",e=>{
     const n=window.__todayN;
     if(window.markToday && n>=1) window.markToday(n);
-    e.currentTarget.textContent = "已打卡 ✓";
+    e.currentTarget.textContent = "已打卡 ✓（今天完成了）";
     e.currentTarget.disabled = true;
+    const sbEl=$("#liteSub");
+    if(sbEl) sbEl.textContent = "今天已经打卡了。" + nextHint(n);
   });
 
   window.refreshToday = paint;
