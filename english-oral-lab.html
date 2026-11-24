@@ -2378,6 +2378,7 @@ $$(".tab").forEach(t => t.addEventListener("click", () => gotoTab(t.dataset.p)))
           <div class="btnrow" style="margin-top:10px">
             <button class="btn" data-audio="${s.n}">听一遍参考音频</button>
             <button class="btn primary" data-tpm="${idx}">用极简版提词器</button>
+            <button class="btn" data-cpsm="${idx}" title="英文一行、中文一行，空行分隔；粘进剪映就能一句对一句">复制双语字幕</button>
           </div>
         </div>
         <div class="sect-lab">英文全文 · / 是停顿点</div>
@@ -2395,9 +2396,39 @@ $$(".tab").forEach(t => t.addEventListener("click", () => gotoTab(t.dataset.p)))
           <button class="btn primary" data-tp="${idx}">提词器</button>
           <button class="btn" data-zh="${idx}">中文开关</button>
           <button class="btn" data-cp="${idx}">复制英文</button>
+          <button class="btn" data-cps="${idx}" title="英文一行、中文一行，空行分隔；粘进剪映就能一句对一句">复制双语字幕</button>
         </div>
       </div>
     </div>`;
+
+  // 复制到剪贴板：优先用 navigator.clipboard，不行就退回 execCommand（双击本地打开时也能用）
+  function copyTo(txt, btn, back){
+    const done = () => { if(!btn) return; btn.textContent = "已复制"; setTimeout(()=>{ btn.textContent = back; }, 1500); };
+    const fallback = () => {
+      const ta = document.createElement("textarea");
+      ta.value = txt; ta.setAttribute("readonly","");
+      ta.style.cssText = "position:fixed;left:-9999px;top:0;opacity:0";
+      document.body.appendChild(ta); ta.select();
+      let good = false;
+      try { good = document.execCommand("copy"); } catch(err) {}
+      document.body.removeChild(ta);
+      if(good) done();
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(done).catch(fallback);
+    } else fallback();
+  }
+
+  // 双语字幕：一条一句，英文一行、中文一行，空行分隔——粘进剪映/抖音就是逐句字幕
+  function copySubs(i, mini, btn){
+    const s = SCRIPTS[i];
+    const idxs = (mini && (s.mini||[]).length) ? s.mini : s.lines.map((_,k)=>k);
+    const txt = idxs.map(k => s.lines[k].en.replace(/ \/ /g," ").replace(/\*/g,"").trim()
+                                + "\n" + s.lines[k].zh.trim()).join("\n\n");
+    copyTo(txt, btn, "复制双语字幕");
+    return txt;
+  }
+  window.copySubs = copySubs;
 
   let zhOn = LS.get("zh", true);
 
@@ -2434,6 +2465,10 @@ $$(".tab").forEach(t => t.addEventListener("click", () => gotoTab(t.dataset.p)))
       navigator.clipboard?.writeText(txt).then(()=>{ cpz.textContent="已复制"; setTimeout(()=>cpz.textContent="复制",1500); }).catch(()=>{});
       return;
     }
+    const cpsm = e.target.closest("[data-cpsm]");
+    if(cpsm){ copySubs(+cpsm.dataset.cpsm, true, cpsm); return; }
+    const cps = e.target.closest("[data-cps]");
+    if(cps){ copySubs(+cps.dataset.cps, false, cps); return; }
     const cp = e.target.closest("[data-cp]");
     if(cp){
       const s = SCRIPTS[+cp.dataset.cp];
