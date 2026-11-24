@@ -316,6 +316,18 @@ footer{text-align:center;padding:40px 16px 20px;color:var(--ink3);font-size:12px
 .rule{background:var(--amber-soft);border:1px solid color-mix(in srgb,var(--amber) 30%,var(--line));border-radius:9px;padding:11px 13px;font-size:13px;color:var(--ink2);margin-top:14px;line-height:1.6}
 .rule b{color:var(--ink)}
 
+/* 发布排期表（可打印，一张纸管 60 天） */
+.sched{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin:16px 0}
+.sched .tablewrap{border-top:1px solid var(--line)}
+.schedtab{width:100%;border-collapse:collapse;font-size:11.5px}
+.schedtab th{background:var(--panel2);font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;color:var(--ink3);text-align:left;padding:7px 6px;border-bottom:1px solid var(--line);white-space:nowrap;font-weight:700}
+.schedtab td{padding:6px;border-bottom:1px solid var(--line2);vertical-align:top;line-height:1.35}
+.schedtab td.n{font-family:var(--mono);color:var(--ink3);text-align:center;white-space:nowrap}
+.schedtab td.cv{font-family:var(--serif);font-weight:600;font-size:13.5px;color:var(--ink)}
+.schedtab td.ti{font-size:11px;color:var(--ink2);line-height:1.4}
+.schedtab td.box{background:var(--panel2);min-width:44px}
+.schedtab tr:last-child td{border-bottom:0}
+
 /* ---------- 打印 ---------- */
 @media print{
   /* 打印时把整套配色变量改成纸面配色——否则暗色模式下打出来是白字白纸 */
@@ -323,7 +335,7 @@ footer{text-align:center;padding:40px 16px 20px;color:var(--ink3);font-size:12px
         --ink:#000;--ink2:#1a1a1a;--ink3:#444;--line:#8a8a8a;--line2:#c0c0c0;
         --brand:#1f5a46;--brand-soft:#eef4f0;--amber:#7a4e10;--amber-soft:#f6f1e4;--red:#8b2a1f}
   body{background:#fff;color:#000;padding:0;font-size:12px}
-  header,nav.tabs,footer,.btnrow,.no-print,.pillars,#tp,.tabs{display:none!important}
+  header,nav.tabs,footer,.btnrow,.no-print,.pillars,#tp,.tabs,#today{display:none!important}
   section.panel{display:none!important}
   section.panel.on{display:block!important;animation:none!important}
   .wrap{max-width:none;padding:0}
@@ -331,8 +343,18 @@ footer{text-align:center;padding:40px 16px 20px;color:var(--ink3);font-size:12px
   .tset,#tRow,input,select,textarea{display:none!important}
   .pc{border:1.5px solid #444;break-inside:avoid;margin:0}
   /* 「打印这一页」只打自己那块：开拍卡 1 页、速查卡 2 页，不用一起打 3 页 */
-  body.print-pc .sheet{display:none!important}
-  body.print-sheet .pc{display:none!important}
+  body.print-pc .sheet,body.print-pc .sched{display:none!important}
+  body.print-sheet .pc,body.print-sheet .sched{display:none!important}
+  body.print-sched .pc,body.print-sched .sheet{display:none!important}
+  /* 排期表：一张 A4 打完 24 行 */
+  .sched{border:1.5px solid #444;border-radius:0;margin:0}
+  .schedtab{font-size:8.6pt}
+  .schedtab th{background:#e9e9e9!important;color:#000!important;padding:2px 3px;font-size:7pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .schedtab td{padding:2.2px 3px;border-bottom:1px solid #bbb}
+  .schedtab td.box{background:#fff!important;border-left:1px solid #bbb}
+  .schedtab td.cv{font-size:9.6pt}
+  .schedtab td.ti{font-size:8pt;color:#222}
+  .schedtab tr{break-inside:avoid}
   .pc-head{background:#1f5a46!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .ck:before{border-color:#444}
   .pc-sec h4{color:#1f5a46}
@@ -1273,6 +1295,23 @@ body:not(.lite-on) #lite{display:none !important}
 </div>
 <div class="sheet" id="sheet"></div>
 <p class="note no-print">两栏排版，A4 两页能打完 24 条。下划线是重读词，跟单页里的标记一致。</p>
+
+<h2 class="no-print">发布排期表 · 一张纸管 60 天</h2>
+<p class="lead no-print">哪天发哪条、封面写什么、发布标题是什么，一列一格。打印出来贴墙上：<b>发完 24 小时内回来填两个数</b>，不用记在本子上。</p>
+<div class="btnrow no-print">
+  <button class="btn primary" onclick="printOnly('sched')">打印这一页</button>
+  <button class="btn" onclick="gotoTab('p5')">去填数据</button>
+</div>
+<div class="sched" id="sched">
+  <div class="pc-head"><div class="t">发布排期表 · 24 条 / 60 天</div><div class="s">只记两个数：5 秒完播、完播。赞和评是给「哪条值得复制」做对照的，别在拍摄当天填。</div></div>
+  <div class="tablewrap">
+  <table class="schedtab" id="schedTab">
+    <thead><tr><th>#</th><th>Day</th><th>封面大字</th><th>发布标题</th><th>实际发日</th><th>5 秒完播</th><th>完播</th><th>赞</th><th>评</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  </div>
+</div>
+<p class="note no-print">A4 一张打完。封面大字就是「封面」那页放大层里截图的那几个字，发布标题可以直接复制。</p>
 </section>
 
 </div>
@@ -2915,6 +2954,16 @@ $("#drills").innerHTML = DRILLS.map(d => `
     <div class="art"><span>${x.txt}</span><em>#${String(x.n).padStart(2,"0")}</em></div>
     <div class="cap"><b>${x.sub}</b><i>点开放大 →</i></div>
   </div>`).join("");
+
+  // 发布排期表：24 行，封面大字 + 发布标题直接来自数据，后面五格留白给手写
+  const sc=$("#schedTab tbody");
+  if(sc) sc.innerHTML = SCRIPTS.map(x=>{
+    const cv=COVERS.find(y=>y.n===x.n)||{};
+    const ti=(typeof PUB!=="undefined" && PUB[x.n]) ? PUB[x.n] : "";
+    return `<tr><td class="n">${String(x.n).padStart(2,"0")}</td><td class="n">D${x.n}</td>`+
+      `<td class="cv">${cv.txt||""}</td><td class="ti">${ti}</td>`+
+      `<td class="box"></td><td class="box"></td><td class="box"></td><td class="box"></td><td class="box"></td></tr>`;
+  }).join("");
 })();
 
 /* ---------- 封面放大：点一张 → 3:4 满屏，可换版式、可翻页 ---------- */
