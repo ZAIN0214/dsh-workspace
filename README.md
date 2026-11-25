@@ -5,9 +5,22 @@
 
 🌐 **在线预览**：[zain0214.github.io/dsh-workspace](https://zain0214.github.io/dsh-workspace/)
 
+📚 **知识库**：**[zain0214.github.io/dsh-workspace/wiki/](https://zain0214.github.io/dsh-workspace/wiki/)**
+
+> ⚠️ 注意是 `zain0214.github.io`（站点），**不是** `github.com/ZAIN0214/dsh-workspace/wiki`（那个是 GitHub 自带的 Wiki 功能，没启用，会 404）。
+
 ---
 
 ## 📂 项目
+
+### 📚 知识库 · wiki
+
+把平时积累的笔记整理成可检索的站点：学习方法、篮球战术、考研政治、英语口播，共 10 篇。
+
+**打开**：[zain0214.github.io/dsh-workspace/wiki/](https://zain0214.github.io/dsh-workspace/wiki/)
+
+维护方式见 [wiki-src/README.md](wiki-src/README.md)。改完笔记跑一次 `python3 wiki-src/build.py` 再 push 即可。
+
 
 ### 🎤 英语口播工作台 · 体育生的 30 天
 `english-oral-lab.html` · **[打开](https://zain0214.github.io/dsh-workspace/english-oral-lab.html)**
