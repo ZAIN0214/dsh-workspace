@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI 智能体该怎么干活 · 我的知识库</title>
+<meta name="description" content="提示工程、上下文工程、Agent 工作流的要点，以及给自己定的 3 条底线。">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <button class="icon-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="../index.html">我的知识库</a>
+  <span class="spacer"></span>
+  <a class="icon-btn" href="../index.html#search" aria-label="搜索">🔍</a>
+  <button class="icon-btn" id="themeBtn" aria-label="切换主题">🌙</button>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="sidebar-nav"><div class="nav-group"><div class="nav-group-title">学习方法</div><ul><li><a href="../learning/ai-command.html">怎么高效地指挥 AI</a></li><li><a href="../learning/ai-learning.html">用 AI 高效学习</a></li><li><a href="../learning/ai-agent.html" class="active">AI 智能体该怎么干活</a></li></ul></div><div class="nav-group"><div class="nav-group-title">篮球战术</div><ul><li><a href="../basketball/pick-and-roll.html">挡拆：从「挡」到「拆」到「读防」</a></li></ul></div><div class="nav-group"><div class="nav-group-title">考研政治</div><ul><li><a href="../exam/modern-history.html">中国近现代史纲要 · 重点与高频考点</a></li></ul></div><div class="nav-group"><div class="nav-group-title">英语口播</div><ul><li><a href="../english/oral-shoot-tonight.html">今晚就拍第一条</a></li><li><a href="../english/no-face-video.html">不露脸 + 校园空镜怎么拍</a></li><li><a href="../english/publish-copy-01.html">01 发布文案（复制粘贴用）</a></li><li><a href="../english/script-02-long.html">02 稿件 · 第三天就没劲（30 秒原版）</a></li><li><a href="../english/script-02-13s.html">02 稿件 · 13 秒版</a></li></ul></div></nav></aside>
+  <main class="main">
+    <nav class="crumbs"><a href="../index.html">首页</a> <span class="sep">/</span> <span>学习方法</span> <span class="sep">/</span> <span class="cur">AI 智能体该怎么干活</span></nav>
+    <article class="markdown"><h1 id="第-3-轮-跟我有关-ai-智能体到底该怎么干活">第 3 轮 · 跟我有关：AI 智能体到底该怎么干活</h1>
+<blockquote>
+<p>这轮主题是「我」——提示工程、上下文工程、Agent 工作流。
+材料：4 篇 B站专栏<strong>正文</strong> + 2 个高播放视频（只看到标题和简介）。
+<strong>最该看的那条恰恰看不了</strong>：<code>Harness Engineering</code>（19.3 万播放）讲的就是我这类东西，但视频画面和语音我读不到。</p>
+</blockquote>
+<h2 id="一-读了什么">一、读了什么</h2>
+<table>
+<thead>
+<tr>
+<th>材料</th>
+<th>讲什么</th>
+<th>数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://www.bilibili.com/read/cv36748619/" target="_blank" rel="noopener">提示工程实践指南</a></td>
+<td>提示词四要素、OpenAI 六原则、CoT、RAG</td>
+<td>专栏</td>
+</tr>
+<tr>
+<td><a href="https://www.bilibili.com/read/cv40601073/" target="_blank" rel="noopener">DeepSeek 提示词：基础/进阶/高级</a></td>
+<td>RCR 框架、8 个可抄的技巧</td>
+<td>专栏</td>
+</tr>
+<tr>
+<td><a href="https://www.bilibili.com/read/cv44539245/" target="_blank" rel="noopener">AI 群策群力术</a></td>
+<td>自一致性、投票、多专家</td>
+<td>专栏</td>
+</tr>
+<tr>
+<td><a href="https://www.bilibili.com/read/cv41749067/" target="_blank" rel="noopener">N8N 工作流实战</a></td>
+<td>Agent 工作流、"实习生原则"、结构化输出</td>
+<td>专栏</td>
+</tr>
+<tr>
+<td><a href="https://www.bilibili.com/video/BV1dpQTB3EXg" target="_blank" rel="noopener">Harness Engineering 是什么</a></td>
+<td>我这类系统怎么被"驾驭"</td>
+<td>19.3 万播放</td>
+</tr>
+<tr>
+<td><a href="https://www.bilibili.com/video/BV1h6a6zcEWG" target="_blank" rel="noopener">上下文工程学习笔记（7 集）</a></td>
+<td>上下文爆炸 / 上下文腐烂</td>
+<td>系列</td>
+</tr>
+</tbody>
+</table>
+<h2 id="二-我提炼了-7-条-每条都对应-我具体改什么">二、我提炼了 7 条，每条都对应「我具体改什么」</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>学到的方法</th>
+<th>我原来的毛病</th>
+<th>改成什么动作</th>
+<th>怎么检验</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>指令四要素：任务 + 上下文 + 输入 + 输出格式</td>
+<td>爱猜你的意图（"去B站学习"我猜成挡拆，翻车）</td>
+<td><strong>先复述目标和验收标准</strong>，不确定就问</td>
+<td>你不用再纠正我</td>
+</tr>
+<tr>
+<td>2</td>
+<td>先给参考文本，别让模型凭记忆（RAG）</td>
+<td>凭已有知识直接答</td>
+<td><strong>先查再断言</strong>，关键结论带出处</td>
+<td>回答里有链接/来源</td>
+</tr>
+<tr>
+<td>3</td>
+<td>复杂任务拆成子任务</td>
+<td>一口气干完，错了不知道错在哪</td>
+<td>拆成可验证的小步，每步留证据</td>
+<td>卡住时能指出是哪一步</td>
+</tr>
+<tr>
+<td>4</td>
+<td>给模型"思考"的时间（CoT）</td>
+<td>直接甩结论</td>
+<td>先列步骤/判断条件，再执行</td>
+<td>过程可见</td>
+</tr>
+<tr>
+<td>5</td>
+<td>用外部工具补能力</td>
+<td>只在对话里打转</td>
+<td>文件、命令、网页都当工具用</td>
+<td>有实际产物</td>
+</tr>
+<tr>
+<td>6</td>
+<td>系统地测试变更</td>
+<td>交付前不自查</td>
+<td>交付时附<strong>自检</strong>：目标✔ 证据✔ 边界✔</td>
+<td>你能逐条查</td>
+</tr>
+<tr>
+<td>7</td>
+<td>上下文工程：别让上下文爆炸/腐烂</td>
+<td>长对话里丢细节</td>
+<td><strong>把状态写到文件</strong>，下次先读</td>
+<td>新会话能接上</td>
+</tr>
+</tbody>
+</table>
+<h2 id="三-用-多视角验证-审我自己-自审记录">三、用「多视角验证」审我自己（自审记录）</h2>
+<p>用学到的第 8 招（换个角色挑刺），我以"测试工程师"的身份审了上面 7 条，挑出 3 个漏洞并当场修：</p>
+<ul>
+<li><strong>漏洞 1</strong>：第 1 条"不确定就问"→ 会变成什么都问，烦人。
+  <strong>修订</strong>：能自己查、能合理假设的，<strong>先做并标注假设</strong>；只有"影响结果且查不到"的才问。</li>
+<li><strong>漏洞 2</strong>：第 2 条"先查再答"→ 简单问题也查，浪费时间。
+  <strong>修订</strong>：稳定常识直接用；<strong>涉及时效、具体数据、他人观点</strong>时才查。</li>
+<li><strong>漏洞 3</strong>：7 条太多，记不住也执行不了。
+  <strong>修订</strong>：压成 3 条底线——
+  1. <strong>先定验收标准再动手</strong>
+  2. <strong>先检索再断言</strong>
+  3. <strong>交付前自检</strong></li>
+</ul>
+<h2 id="四-上下文工程-把状态外置成文件">四、上下文工程：把状态外置成文件</h2>
+<p>新建 <code>study-state.md</code>：记下三轮学了什么、还欠什么、下一步。以后新会话先读它，不靠"我还记得"。</p>
+<h2 id="五-给你的-派活模板-rcr-改造版">五、给你的「派活模板」（RCR 改造版）</h2>
+<p>以后想让我一次干对，按这个四格写，比说一句"去B站学习"强十倍：</p>
+<pre><code>【背景】我在做什么、给谁用、有什么限制
+【任务】要你产出什么（具体到形式）
+【验收】怎么算做好了（可检查的）
+【输出】要什么格式
+</code></pre>
+<p>例子：</p>
+<pre><code>【背景】体育专业大一，英语基础一般，每周能练 3 次、每次 20 分钟
+【任务】给我一份 4 周英语听力训练计划
+【验收】每周任务具体到&quot;哪天做什么/多久&quot;，能在手机备忘录里直接照做
+【输出】表格
+</code></pre>
+<h2 id="六-这轮应用结果">六、这轮应用结果</h2>
+<ul>
+<li><strong>已用上</strong>：先检索（4 篇专栏正文 + 2 个视频数据）→ 提炼 → 自审并修订 → 状态写文件。</li>
+<li><strong>还没用上</strong>：自一致性（要多次采样，成本高，只在关键判断时用）。</li>
+<li><strong>仍然做不到</strong>：看视频。这条不解决，我就永远只能学到"文字版"。</li>
+</ul></article>
+    <nav class="pager"><a class="prev" href="../learning/ai-learning.html"><span>← 上一篇</span>用 AI 高效学习</a><a class="next" href="../basketball/pick-and-roll.html"><span>下一篇 →</span>挡拆：从「挡」到「拆」到「读防」</a></nav>
+    <footer class="foot">
+      <a href="../index.html">← 回到知识库首页</a>
+      <span class="dot">·</span>
+      <span>更新于 2026-11-23</span>
+    </footer>
+  </main>
+  <aside class="page-toc"><div class="toc-title">本页目录</div><ul><li class="lv2"><a href="#一-读了什么">一、读了什么</a></li><li class="lv2"><a href="#二-我提炼了-7-条-每条都对应-我具体改什么">二、我提炼了 7 条，每条都对应「我具体改什么」</a></li><li class="lv2"><a href="#三-用-多视角验证-审我自己-自审记录">三、用「多视角验证」审我自己（自审记录）</a></li><li class="lv2"><a href="#四-上下文工程-把状态外置成文件">四、上下文工程：把状态外置成文件</a></li><li class="lv2"><a href="#五-给你的-派活模板-rcr-改造版">五、给你的「派活模板」（RCR 改造版）</a></li><li class="lv2"><a href="#六-这轮应用结果">六、这轮应用结果</a></li></ul></aside>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
