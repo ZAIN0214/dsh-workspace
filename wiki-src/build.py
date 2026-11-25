@@ -276,7 +276,7 @@ PAGE_TMPL = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{title} · {site}</title>
+<title>{pagetitle}</title>
 <meta name="description" content="{desc}">
 <link rel="stylesheet" href="{rel}assets/style.css">
 </head>
@@ -406,6 +406,7 @@ def build():
             )
 
         out = PAGE_TMPL.format(
+            pagetitle=esc(meta["title"]) + " · " + esc(SITE_TITLE),
             title=esc(meta["title"]),
             site=esc(SITE_TITLE),
             desc=esc(meta["desc"]),
@@ -462,6 +463,7 @@ def build():
     )
 
     index_html = PAGE_TMPL.format(
+        pagetitle=esc(SITE_TITLE) + " · 平时积累的干货笔记",
         title=esc(SITE_TITLE),
         site=esc(SITE_TITLE),
         desc=esc(SITE_DESC),
